@@ -697,12 +697,6 @@ $stmt->close();
           <li class="nav-item">
             <a class="nav-link text-white d-flex align-items-center" href="candidates.php">
               <i class="bi bi-people"></i>
-              <span class="sidebar-text">Announcements</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white d-flex align-items-center" href="candidates.php">
-              <i class="bi bi-people"></i>
               <span class="sidebar-text">Attendance</span>
             </a>
           </li>
@@ -713,15 +707,15 @@ $stmt->close();
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-white d-flex align-items-center" href="remove_candidate.php">
-              <i class="bi bi-trash"></i>
-              <span class="sidebar-text">Remove Candidate</span>
+            <a class="nav-link text-white d-flex align-items-center" href="candidates.php">
+            <i class="bi bi-cash-coin"></i>
+              <span class="sidebar-text">Payments</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-white d-flex align-items-center" href="results.php">
-              <i class="bi bi-list-check"></i>
-              <span class="sidebar-text">All Results</span>
+            <a class="nav-link text-white d-flex align-items-center" href="candidates.php">
+            <i class="bi bi-question-diamond"></i>
+              <span class="sidebar-text">Lost and Found</span>
             </a>
           </li>
           <li class="nav-item">

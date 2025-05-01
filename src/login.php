@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" href="../img/icon.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ELECOM Voting System Login</title>
+  <title>USG Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     html, body {
@@ -72,7 +72,7 @@
       filter: drop-shadow(0 2px 8px rgba(37,99,235,0.08));
     }
     .login-form-card {
-      background: linear-gradient(135deg, rgba(26, 21, 123, 1) 20%, rgba(249, 166, 2, 1) 50%, rgba(187, 201, 189, 1) 85%);
+      background: linear-gradient(135deg, rgba(26, 21, 123, 1) 20%, rgba(249, 166, 2, 1) 55%, rgba(187, 201, 189, 1) 80%);
       border: 1.5px solid rgba(0, 0, 0, 0.18);
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
       backdrop-filter: blur(18px);
@@ -96,7 +96,7 @@
       letter-spacing: 0.5px;
       text-align: center;
       text-decoration: none;
-      color: #121214  ;
+      color: linear-gradient(to right, #010101, #202020, #f0f2f500);
     }
     .highlight {
       color: #2563eb;
