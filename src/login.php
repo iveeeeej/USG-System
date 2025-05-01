@@ -72,7 +72,7 @@
       filter: drop-shadow(0 2px 8px rgba(37,99,235,0.08));
     }
     .login-form-card {
-      background: linear-gradient(135deg, rgba(26, 21, 123, 1) 15%, rgba(249, 166, 2, 0.9) 50%, rgba(187, 201, 221, 0.3) 100%);
+      background: linear-gradient(135deg, rgba(26, 21, 123, 1) 20%, rgba(249, 166, 2, 1) 50%, rgba(187, 201, 189, 1) 85%);
       border: 1.5px solid rgba(0, 0, 0, 0.18);
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
       backdrop-filter: blur(18px);
@@ -100,7 +100,7 @@
     }
     .highlight {
       color: #2563eb;
-      background: linear-gradient(90deg,rgb(240, 242, 245) 0%,rgb(52, 66, 104) 50%,rgb(26, 21, 123) 100%);
+      background: linear-gradient(90deg,rgb(240, 242, 245) 0%,rgb(52, 66, 104) 50%,rgb(26, 21, 123) 85%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;

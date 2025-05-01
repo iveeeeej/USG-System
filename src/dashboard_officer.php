@@ -655,7 +655,7 @@ $stmt->close();
 </head>
 <body>
   <!-- Top Bar -->
-  <nav class="navbar navbar-expand-lg position-relative" style="background: linear-gradient(to right, #1a157b, #f9a602, #bbc9dd); height: 60px;">
+  <nav class="navbar navbar-expand-lg position-relative" style="background: linear-gradient(to right, #1a157b, #f9a602, #bbc9bd); height: 60px;">
     <div class="container-fluid">
       <div class="d-flex align-items-center">
         <button class="mobile-menu-btn" id="mobileMenuBtn">
