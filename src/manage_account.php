@@ -73,11 +73,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         
         // Handle profile image upload
+        $imageData = null;
         if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            $maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!in_array($_FILES['profileImage']['type'], $allowedTypes)) {
+                throw new Exception('Invalid image type. Please upload a JPEG, PNG, or GIF image.');
+            }
+            if ($_FILES['profileImage']['size'] > $maxSize) {
+                throw new Exception('Image size too large. Maximum size is 5MB.');
+            }
+
             $imageData = file_get_contents($_FILES['profileImage']['tmp_name']);
+            
+            // Debug: Check if image data was read successfully
+            if ($imageData === false) {
+                throw new Exception('Failed to read image file');
+            }
+            
+            // Debug: Check image data size
+            $imageSize = strlen($imageData);
+            if ($imageSize === 0) {
+                throw new Exception('Image data is empty');
+            }
+            
             $stmt = $con->prepare("UPDATE user_prof SET user_img = ? WHERE user_id = ?");
             $stmt->bind_param("bi", $imageData, $user_id);
-            $stmt->execute();
+            $result = $stmt->execute();
+            
+            // Debug: Check if update was successful
+            if (!$result) {
+                throw new Exception('Failed to update image in database: ' . $stmt->error);
+            }
         }
         
         // Handle password change if provided
@@ -103,7 +131,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit transaction
         $con->commit();
         
-        echo json_encode(['success' => true, 'message' => 'Profile updated successfully']);
+        // Get updated user data including the new image
+        $stmt = $con->prepare("SELECT user_fullname, user_mail, department, user_img FROM user_prof WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        // Debug: Check if we got the updated data
+        if (!$row) {
+            throw new Exception('Failed to retrieve updated user data');
+        }
+        
+        // Split fullname into first and last name
+        $name_parts = explode(' ', $row['user_fullname']);
+        $firstName = $name_parts[0];
+        $lastName = isset($name_parts[1]) ? $name_parts[1] : '';
+        
+        // Debug: Check if image data exists
+        $hasImage = !empty($row['user_img']);
+        
+        $response = [
+            'success' => true, 
+            'message' => 'Profile updated successfully',
+            'data' => [
+                'firstName' => $firstName,
+                'lastName' => $lastName,
+                'email' => $row['user_mail'],
+                'department' => $row['department'],
+                'profileImage' => $row['user_img'] ? base64_encode($row['user_img']) : null,
+                'debug' => [
+                    'hasImage' => $hasImage,
+                    'imageSize' => $hasImage ? strlen($row['user_img']) : 0
+                ]
+            ]
+        ];
+        
+        echo json_encode($response);
         
     } catch (Exception $e) {
         // Rollback transaction on error

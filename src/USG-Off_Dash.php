@@ -542,8 +542,17 @@ if (isset($_GET['edit_item_id'])) {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                overflow: hidden;
+            }
+            .admin-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .admin-logo-text {
                 color: white;
                 font-weight: bold;
+                font-size: 1.2rem;
             }
             .dropdown-menu {
                 right: 0;
@@ -583,7 +592,9 @@ if (isset($_GET['edit_item_id'])) {
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2 d-none d-md-inline">Admin Panel</span>
-                    <div class="admin-logo" aria-label="Admin Panel Logo">A</div>
+                    <div class="admin-logo" aria-label="Admin Panel Logo">
+                        <img id="adminLogoImg" src="../img/default-profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
+                    </div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
                     <li><a class="dropdown-item" href="#" data-section="manageAccountSection"><i class="bi bi-gear me-2"></i>Manage Account</a></li>
@@ -1836,6 +1847,7 @@ if (isset($_GET['edit_item_id'])) {
         // Profile image preview
         const profileImageInput = document.getElementById('profileImageInput');
         const profileImage = document.getElementById('profileImage');
+        const adminLogoImg = document.getElementById('adminLogoImg');
 
         if (profileImageInput && profileImage) {
             profileImageInput.addEventListener('change', function() {
@@ -1843,7 +1855,11 @@ if (isset($_GET['edit_item_id'])) {
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        // Update both profile image and admin logo
                         profileImage.src = e.target.result;
+                        if (adminLogoImg) {
+                            adminLogoImg.src = e.target.result;
+                        }
                     }
                     reader.readAsDataURL(file);
                 }
@@ -1865,7 +1881,11 @@ if (isset($_GET['edit_item_id'])) {
                             document.getElementById('department').value = data.data.department;
                             
                             if (data.data.profileImage) {
-                                document.getElementById('profileImage').src = 'data:image/jpeg;base64,' + data.data.profileImage;
+                                const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
+                                document.getElementById('profileImage').src = imageData;
+                                if (adminLogoImg) {
+                                    adminLogoImg.src = imageData;
+                                }
                             }
                         } else {
                             alert('Error loading user data: ' + data.message);
@@ -1905,6 +1925,21 @@ if (isset($_GET['edit_item_id'])) {
                         document.getElementById('currentPassword').value = '';
                         document.getElementById('newPassword').value = '';
                         document.getElementById('confirmPassword').value = '';
+                        
+                        // Update navbar with new user info
+                        const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
+                        if (adminPanelText) {
+                            adminPanelText.textContent = data.data.firstName + ' ' + data.data.lastName;
+                        }
+                        
+                        // Update both profile image and admin logo
+                        if (data.data.profileImage) {
+                            const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
+                            document.getElementById('profileImage').src = imageData;
+                            if (adminLogoImg) {
+                                adminLogoImg.src = imageData;
+                            }
+                        }
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -1915,6 +1950,35 @@ if (isset($_GET['edit_item_id'])) {
                 });
             });
         }
+
+        // Function to update navbar user info
+        function updateNavbarUserInfo() {
+            fetch('manage_account.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update admin panel text
+                        const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
+                        if (adminPanelText) {
+                            adminPanelText.textContent = data.data.firstName + ' ' + data.data.lastName;
+                        }
+                        
+                        // Update admin logo
+                        if (data.data.profileImage) {
+                            const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
+                            if (adminLogoImg) {
+                                adminLogoImg.src = imageData;
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating navbar:', error);
+                });
+        }
+
+        // Call updateNavbarUserInfo when page loads
+        updateNavbarUserInfo();
     });
 
     // Function to show/hide sections
