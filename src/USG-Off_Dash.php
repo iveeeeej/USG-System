@@ -586,9 +586,9 @@ if (isset($_GET['edit_item_id'])) {
                     <div class="admin-logo" aria-label="Admin Panel Logo">A</div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Manage Account</a></li>
+                    <li><a class="dropdown-item" href="#" data-section="manageAccountSection"><i class="bi bi-gear me-2"></i>Manage Account</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
+                    <li><a class="dropdown-item" href="USG-Login.php"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
                 </ul>
             </div>
         </div>
@@ -766,11 +766,11 @@ if (isset($_GET['edit_item_id'])) {
 
                     <div class="row g-4">
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Total Events">
+                            <div class="card" aria-label="Total Events" style="cursor: pointer;" onclick="showSection('viewEventsSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Total Events</h5>
+                                            <h5 class="card-title">Events</h5>
                                             <h2 class="mb-0" id="totalEventsCount">
                                                 <?= $totalEvents ?>
                                             </h2>
@@ -788,7 +788,7 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
 
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Attendance">
+                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('viewAttendanceSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
@@ -807,7 +807,7 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
 
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Payments">
+                            <div class="card" aria-label="Payments" style="cursor: pointer;" onclick="showSection('viewPaymentsSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
@@ -826,7 +826,7 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
 
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Lost and Found">
+                            <div class="card" aria-label="Lost and Found" style="cursor: pointer;" onclick="showSection('viewItemsSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
@@ -1634,6 +1634,84 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
+                <!-- Manage Account Section -->
+                <section id="manageAccountSection" class="section-container d-none">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">Manage Account</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="manageAccountForm" method="post" enctype="multipart/form-data">
+                                        <div class="text-center mb-4">
+                                            <div class="position-relative d-inline-block">
+                                                <img id="profileImage" src="../img/default-profile.png" alt="Profile Image" 
+                                                     class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                                <label for="profileImageInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" 
+                                                       style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-camera"></i>
+                                                </label>
+                                                <input type="file" id="profileImageInput" name="profileImage" class="d-none" accept="image/*">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="firstName" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="lastName" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="position" class="form-label">Position</label>
+                                            <input type="text" class="form-control" id="position" name="position" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="department" class="form-label">Department</label>
+                                            <input type="text" class="form-control" id="department" name="department" required>
+                                        </div>
+
+                                        <hr class="my-4">
+
+                                        <h6 class="mb-3">Change Password</h6>
+                                        <div class="mb-3">
+                                            <label for="currentPassword" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                                        </div>
+
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save me-2"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
         </div>
@@ -1757,6 +1835,90 @@ if (isset($_GET['edit_item_id'])) {
             sidebarExpandBtn.addEventListener('click', function() {
                 sidebar.classList.remove('collapsed');
                 mainContent.classList.remove('expanded');
+            });
+        }
+
+        // Profile image preview
+        const profileImageInput = document.getElementById('profileImageInput');
+        const profileImage = document.getElementById('profileImage');
+
+        if (profileImageInput && profileImage) {
+            profileImageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profileImage.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Form submission handling
+        const manageAccountForm = document.getElementById('manageAccountForm');
+        if (manageAccountForm) {
+            // Load user data when the section is shown
+            document.querySelector('[data-section="manageAccountSection"]').addEventListener('click', function() {
+                fetch('manage_account.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('firstName').value = data.data.firstName;
+                            document.getElementById('lastName').value = data.data.lastName;
+                            document.getElementById('email').value = data.data.email;
+                            document.getElementById('position').value = data.data.position;
+                            document.getElementById('department').value = data.data.department;
+                            
+                            if (data.data.profileImage) {
+                                document.getElementById('profileImage').src = 'data:image/jpeg;base64,' + data.data.profileImage;
+                            }
+                        } else {
+                            alert('Error loading user data: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error loading user data');
+                    });
+            });
+
+            manageAccountForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate password change
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword && newPassword !== confirmPassword) {
+                    alert('New passwords do not match!');
+                    return;
+                }
+
+                // Create FormData object
+                const formData = new FormData(this);
+
+                // Send form data to server
+                fetch('manage_account.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        // Clear password fields
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating profile');
+                });
             });
         }
     });
