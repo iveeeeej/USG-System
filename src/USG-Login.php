@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = $con->prepare("SELECT user_id, user_fullname 
                              FROM user_prof 
                              WHERE user_id = ? AND user_id = ?");
-        $stmt->bind_param("is", $user_id, $acc_pass);
+        $stmt->bind_param("ss", $user_id, $acc_pass);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -29,11 +29,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $row = $result->fetch_assoc();
             
             // Debug: Log the retrieved data
-            error_log("Retrieved data - Password: " . ($row['acc_pass'] ?? 'null'));
+            error_log("Retrieved data - User ID: " . $row['user_id']);
 
             $_SESSION['user_id'] = $row['user_id'];
             $_SESSION['user_fullname'] = $row['user_fullname'];
-            header("Location: USG-Off_Dash.php");
+
+            // Route based on user ID
+            if ($row['user_id'] == '2023305122') {
+                header("Location: USG-Off_Dash.php");
+            } else {
+                header("Location: Stud_Dash.php");
+            }
             exit();
         } else {
             $login_error = "ERROR: Incorrect Credentials.";

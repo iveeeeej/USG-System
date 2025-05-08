@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 08, 2025 at 07:01 PM
+-- Generation Time: May 09, 2025 at 12:40 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -143,7 +143,7 @@ CREATE TABLE `user_prof` (
 INSERT INTO `user_prof` (`user_id`, `user_fullname`, `user_mail`, `department`, `user_img`) VALUES
 (2023304637, 'REDJAN VISITACION', 'redjan@gmail.com', 'BSIT', NULL),
 (2023305026, ' JOHN ROLDAN', 'john@gmail.com', 'BSIT', NULL),
-(2023305122, 'JEVI BANTIAD', 'jevi@gmail.com', 'BSIT', NULL),
+(2023305122, 'ADMIN', 'admin@gmail.com', 'BSIT', NULL),
 (2023305178, 'MARK PANAGUITON', 'mark@gmail.com', 'BSIT', NULL),
 (2023306358, 'JAY PALANIA', 'jay@gmail.com', 'BSIT', NULL);
 
