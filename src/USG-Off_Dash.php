@@ -247,6 +247,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_payment'])) {
     }
 }
 
+// Handle Delete Lost and Found Item
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_item'])) {
+    $deleteId = (int) ($_POST['item_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM lst_fnd WHERE lst_id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#lostAndFoundSection');
+        exit();
+    }
+}
+
+// Handle Update Lost and Found Item
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_item'])) {
+    $updateId = (int) ($_POST['item_id'] ?? 0);
+    $itemName = trim($_POST['itemName'] ?? '');
+    $category = trim($_POST['itemCategory'] ?? '');
+    $dateFound = $_POST['dateFound'] ?? '';
+    $location = trim($_POST['location'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $status = $_POST['status'] ?? 'Unclaimed';
+
+    // Validate input
+    if ($itemName === '') {
+        $errors[] = 'Item Name is required.';
+    }
+    if ($category === '') {
+        $errors[] = 'Category is required.';
+    }
+    if (!$dateFound) {
+        $errors[] = 'Date Found is required.';
+    }
+    if ($location === '') {
+        $errors[] = 'Location is required.';
+    }
+
+    // Handle image upload
+    $imageData = null;
+    if (isset($_FILES['itemImage']) && $_FILES['itemImage']['error'] === UPLOAD_ERR_OK) {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($_FILES['itemImage']['type'], $allowedTypes)) {
+            $errors[] = 'Invalid image type. Please upload a JPEG, PNG, or GIF image.';
+        } elseif ($_FILES['itemImage']['size'] > $maxSize) {
+            $errors[] = 'Image size too large. Maximum size is 5MB.';
+        } else {
+            $imageData = file_get_contents($_FILES['itemImage']['tmp_name']);
+        }
+    }
+
+    // Update if no errors
+    if (empty($errors) && $updateId > 0) {
+        if ($imageData) {
+            $stmt = $pdo->prepare('UPDATE lst_fnd SET lst_name = ?, category = ?, date_found = ?, location = ?, description = ?, status = ?, lst_img = ? WHERE lst_id = ?');
+            $stmt->execute([$itemName, $category, $dateFound, $location, $description, $status, $imageData, $updateId]);
+        } else {
+            $stmt = $pdo->prepare('UPDATE lst_fnd SET lst_name = ?, category = ?, date_found = ?, location = ?, description = ?, status = ? WHERE lst_id = ?');
+            $stmt->execute([$itemName, $category, $dateFound, $location, $description, $status, $updateId]);
+        }
+        $successMessage = 'Item updated successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewItemsSection');
+        exit();
+    }
+}
+
+// Handle Create Lost and Found Item
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_item'])) {
+    $itemName = trim($_POST['itemName'] ?? '');
+    $category = trim($_POST['itemCategory'] ?? '');
+    $dateFound = $_POST['dateFound'] ?? '';
+    $location = trim($_POST['location'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $status = 'Unclaimed';
+
+    // Validate input
+    if ($itemName === '') {
+        $errors[] = 'Item Name is required.';
+    }
+    if ($category === '') {
+        $errors[] = 'Category is required.';
+    }
+    if (!$dateFound) {
+        $errors[] = 'Date Found is required.';
+    }
+    if ($location === '') {
+        $errors[] = 'Location is required.';
+    }
+
+    // Handle image upload
+    $imageData = null;
+    if (isset($_FILES['itemImage']) && $_FILES['itemImage']['error'] === UPLOAD_ERR_OK) {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($_FILES['itemImage']['type'], $allowedTypes)) {
+            $errors[] = 'Invalid image type. Please upload a JPEG, PNG, or GIF image.';
+        } elseif ($_FILES['itemImage']['size'] > $maxSize) {
+            $errors[] = 'Image size too large. Maximum size is 5MB.';
+        } else {
+            $imageData = file_get_contents($_FILES['itemImage']['tmp_name']);
+        }
+    } else {
+        $errors[] = 'Item image is required.';
+    }
+
+    // Create if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('INSERT INTO lst_fnd (lst_name, category, date_found, location, description, status, lst_img) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$itemName, $category, $dateFound, $location, $description, $status, $imageData]);
+        $successMessage = 'Item added successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewItemsSection');
+        exit();
+    }
+}
+
 // Fetch events for display
 try {
     // Fetch events
@@ -260,8 +375,30 @@ try {
     // Fetch payments
     $stmt     = $pdo->query('SELECT * FROM pay ORDER BY pay_startdate DESC');
     $payments = $stmt->fetchAll();
+
+    // Fetch lost and found items
+    // First, check if the new columns exist
+    $checkColumns = $pdo->query("SHOW COLUMNS FROM lst_fnd LIKE 'date_found'");
+    $columnsExist = $checkColumns->rowCount() > 0;
+
+    if (!$columnsExist) {
+        // If columns don't exist, execute the update script
+        $updateSQL = file_get_contents('../database/update_lost_and_found.sql');
+        $pdo->exec($updateSQL);
+    }
+
+    // Now fetch the items
+    $stmt = $pdo->query('SELECT * FROM lst_fnd ORDER BY date_found DESC');
+    $lostAndFoundItems = $stmt->fetchAll();
 } catch (\PDOException $e) {
-    exit('Database error: ' . htmlspecialchars($e->getMessage()));
+    // If there's still an error, try fetching without the new columns
+    try {
+        $stmt = $pdo->query('SELECT * FROM lst_fnd');
+        $lostAndFoundItems = $stmt->fetchAll();
+    } catch (\PDOException $e) {
+        $lostAndFoundItems = [];
+        $errors[] = 'Error loading lost and found items: ' . $e->getMessage();
+    }
 }
 
 // Calculate event statistics
@@ -305,6 +442,15 @@ if (isset($_GET['edit_pay_id'])) {
     $stmt      = $pdo->prepare('SELECT * FROM pay WHERE pay_id = ?');
     $stmt->execute([$editPayId]);
     $editPayment = $stmt->fetch();
+}
+
+// Check edit lost and found item request
+$editItem = null;
+if (isset($_GET['edit_item_id'])) {
+    $editItemId = (int) $_GET['edit_item_id'];
+    $stmt = $pdo->prepare('SELECT * FROM lst_fnd WHERE lst_id = ?');
+    $stmt->execute([$editItemId]);
+    $editItem = $stmt->fetch();
 }
 ?>
 
@@ -544,12 +690,29 @@ if (isset($_GET['edit_pay_id'])) {
                             </div>
                         </li>
 
-                        <!-- Other Menu Items -->
+                        <!-- Lost and Found Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" data-bs-toggle="collapse" href="#lostAndFoundSubMenu" role="button" aria-expanded="false" aria-controls="lostAndFoundSubMenu">
                                 <i class="bi bi-question-diamond"></i>
                                 Lost and Found
+                                <i class="bi bi-chevron-down ms-2"></i>
                             </a>
+                            <div class="collapse" id="lostAndFoundSubMenu">
+                                <ul class="nav flex-column ps-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#" data-section="addItemSection" id="navAddItem">
+                                            <i class="bi bi-plus-circle me-2"></i>
+                                            Add New Item
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#" data-section="viewItemsSection" id="navViewItems">
+                                            <i class="bi bi-eye me-2"></i>
+                                            View Items
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
 
                         <li class="nav-item">
@@ -1037,6 +1200,145 @@ if (isset($_GET['edit_pay_id'])) {
                     </div>
                 </section>
 
+                <!-- Lost and Found Sections -->
+                <!-- Add New Item Section -->
+                <section id="addItemSection" class="section-container d-none" aria-label="Add New Item Section">
+                    <div class="row justify-content-center">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">
+                                        <?= $editItem ? 'Edit Item' : 'Add New Item' ?>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="addItemForm" method="post" enctype="multipart/form-data" novalidate>
+                                        <input type="hidden" name="<?= $editItem ? 'update_item' : 'create_item' ?>" value="1" />
+                                        <?php if ($editItem): ?>
+                                            <input type="hidden" name="item_id" value="<?= $editItem['lst_id'] ?>" />
+                                        <?php endif; ?>
+                                        <div class="mb-3">
+                                            <label for="itemName" class="form-label">Item Name*</label>
+                                            <input type="text" class="form-control" id="itemName" name="itemName" required value="<?= htmlspecialchars($_POST['itemName'] ?? $editItem['lst_name'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="itemCategory" class="form-label">Category*</label>
+                                            <select class="form-select" id="itemCategory" name="itemCategory" required>
+                                                <option value="">Select Category</option>
+                                                <option value="Electronics" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Electronics') ? 'selected' : '' ?>>Electronics</option>
+                                                <option value="Clothing" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Clothing') ? 'selected' : '' ?>>Clothing</option>
+                                                <option value="Books" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Books') ? 'selected' : '' ?>>Books</option>
+                                                <option value="Accessories" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Accessories') ? 'selected' : '' ?>>Accessories</option>
+                                                <option value="Others" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Others') ? 'selected' : '' ?>>Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="dateFound" class="form-label">Date Found*</label>
+                                            <input type="date" class="form-control" id="dateFound" name="dateFound" required value="<?= htmlspecialchars($_POST['dateFound'] ?? ($editItem ? date('Y-m-d', strtotime($editItem['date_found'])) : '')) ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="location" class="form-label">Location Found*</label>
+                                            <input type="text" class="form-control" id="location" name="location" required value="<?= htmlspecialchars($_POST['location'] ?? $editItem['location'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="description" class="form-label">Description</label>
+                                            <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($_POST['description'] ?? $editItem['description'] ?? '') ?></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="itemImage" class="form-label">Item Image</label>
+                                            <input type="file" class="form-control" id="itemImage" name="itemImage" accept="image/*" <?= !$editItem ? 'required' : '' ?> />
+                                            <?php if ($editItem && $editItem['lst_img']): ?>
+                                                <div class="mt-2">
+                                                    <img src="data:image/jpeg;base64,<?= base64_encode($editItem['lst_img']) ?>" alt="Current item image" class="img-thumbnail" style="max-width: 200px;" />
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="button" class="btn btn-danger me-2" id="cancelAddItemBtn">
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <?= $editItem ? 'Update Item' : 'Add Item' ?>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View Items Section -->
+                <section id="viewItemsSection" class="section-container d-none" aria-label="View Items Section">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Lost and Found Items</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="lostAndFoundTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Image</th>
+                                                    <th scope="col">Item Name</th>
+                                                    <th scope="col">Category</th>
+                                                    <th scope="col">Date Found</th>
+                                                    <th scope="col">Location</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col" style="min-width: 110px">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (!empty($lostAndFoundItems)): ?>
+                                                    <?php foreach ($lostAndFoundItems as $index => $item): ?>
+                                                        <tr>
+                                                            <th scope="row"><?= $index + 1 ?></th>
+                                                            <td>
+                                                                <?php if ($item['lst_img']): ?>
+                                                                    <img src="data:image/jpeg;base64,<?= base64_encode($item['lst_img']) ?>" alt="Item image" class="img-thumbnail" style="max-width: 50px;" />
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No image</span>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td><?= htmlspecialchars($item['lst_name']) ?></td>
+                                                            <td><?= htmlspecialchars($item['category']) ?></td>
+                                                            <td><?= (new DateTime($item['date_found']))->format('M d, Y') ?></td>
+                                                            <td><?= htmlspecialchars($item['location']) ?></td>
+                                                            <td>
+                                                                <span class="badge bg-<?= htmlspecialchars($item['status']) === 'Claimed' ? 'success' : 'warning' ?>">
+                                                                    <?= htmlspecialchars($item['status']) ?>
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </a>
+                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this item?');" aria-label="Delete Item <?= htmlspecialchars($item['lst_name']) ?>">
+                                                                    <input type="hidden" name="item_id" value="<?= $item['lst_id'] ?>" />
+                                                                    <button type="submit" name="delete_item" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="8" class="text-center">No items found.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
         </div>
@@ -1146,10 +1448,23 @@ if (isset($_GET['edit_pay_id'])) {
         navLinks.forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
-                showSection(this.getAttribute('data-section'));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const section = this.getAttribute('data-section');
+                if (section) {
+                    showSection(section);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             });
         });
+
+        // Add Lost and Found navigation handler
+        const lostAndFoundLink = document.querySelector('a[href="#lostAndFoundSection"]');
+        if (lostAndFoundLink) {
+            lostAndFoundLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('lostAndFoundSection');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
 
         // Submenu links click handler (events, attendance, payments)
         document.querySelectorAll('#eventsSubMenu .nav-link').forEach(link => {
@@ -1180,6 +1495,7 @@ if (isset($_GET['edit_pay_id'])) {
         const cancelCreateEventBtn = document.getElementById('cancelCreateEventBtn');
         const cancelRecordAttendanceBtn = document.getElementById('cancelRecordAttendanceBtn');
         const cancelCreatePaymentBtn = document.getElementById('cancelCreatePaymentBtn');
+        const cancelAddItemBtn = document.getElementById('cancelAddItemBtn');
 
         if (cancelCreateEventBtn) {
             cancelCreateEventBtn.addEventListener('click', function () {
@@ -1202,23 +1518,54 @@ if (isset($_GET['edit_pay_id'])) {
             });
         }
 
+        if (cancelAddItemBtn) {
+            cancelAddItemBtn.addEventListener('click', function () {
+                showSection('lostAndFoundSection');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Handle Lost and Found form submission
+        const addItemForm = document.getElementById('addItemForm');
+        if (addItemForm) {
+            addItemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                formData.append('create_item', '1');
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+
         // On page load, show based on URL params or default
         function showInitialSection() {
             const urlParams = new URLSearchParams(window.location.search);
 
             if (urlParams.has('edit_id')) {
                 showSection('createEventSection');
-                eventsCollapse.show();
-                attendanceCollapse.hide();
-                paymentsCollapse.hide();
+                eventsCollapse.classList.add('show');
+                attendanceCollapse.classList.remove('show');
+                paymentsCollapse.classList.remove('show');
             } else if (urlParams.has('edit_att_id')) {
                 showSection('recordAttendanceSection');
-                attendanceCollapse.show();
-                eventsCollapse.hide();
-                paymentsCollapse.hide();
+                attendanceCollapse.classList.add('show');
+                eventsCollapse.classList.remove('show');
+                paymentsCollapse.classList.remove('show');
             } else if (urlParams.has('edit_pay_id')) {
                 showSection('createPaymentSection');
-                paymentsCollapse.show();
+                paymentsCollapse.classList.add('show');
+                eventsCollapse.classList.remove('show');
+                attendanceCollapse.classList.remove('show');
+            } else if (urlParams.has('edit_item_id')) {
+                showSection('lostAndFoundSection');
+                paymentsCollapse.hide();
                 eventsCollapse.hide();
                 attendanceCollapse.hide();
             } else {
@@ -1226,27 +1573,31 @@ if (isset($_GET['edit_pay_id'])) {
                 if (hash && document.getElementById(hash)) {
                     showSection(hash);
                     if (hash === 'createEventSection' || hash === 'viewEventsSection') {
-                        eventsCollapse.show();
-                        attendanceCollapse.hide();
-                        paymentsCollapse.hide();
+                        eventsCollapse.classList.add('show');
+                        attendanceCollapse.classList.remove('show');
+                        paymentsCollapse.classList.remove('show');
                     } else if (hash === 'recordAttendanceSection' || hash === 'viewAttendanceSection') {
-                        attendanceCollapse.show();
-                        eventsCollapse.hide();
-                        paymentsCollapse.hide();
+                        attendanceCollapse.classList.add('show');
+                        eventsCollapse.classList.remove('show');
+                        paymentsCollapse.classList.remove('show');
                     } else if (hash === 'createPaymentSection' || hash === 'viewPaymentsSection') {
-                        paymentsCollapse.show();
-                        eventsCollapse.hide();
-                        attendanceCollapse.hide();
+                        paymentsCollapse.classList.add('show');
+                        eventsCollapse.classList.remove('show');
+                        attendanceCollapse.classList.remove('show');
+                    } else if (hash === 'lostAndFoundSection') {
+                        eventsCollapse.classList.remove('show');
+                        attendanceCollapse.classList.remove('show');
+                        paymentsCollapse.classList.remove('show');
                     } else {
-                        eventsCollapse.hide();
-                        attendanceCollapse.hide();
-                        paymentsCollapse.hide();
+                        eventsCollapse.classList.remove('show');
+                        attendanceCollapse.classList.remove('show');
+                        paymentsCollapse.classList.remove('show');
                     }
                 } else {
                     showSection('viewAttendanceSection');
-                    attendanceCollapse.show();
-                    eventsCollapse.hide();
-                    paymentsCollapse.hide();
+                    attendanceCollapse.classList.add('show');
+                    eventsCollapse.classList.remove('show');
+                    paymentsCollapse.classList.remove('show');
                 }
             }
         }
