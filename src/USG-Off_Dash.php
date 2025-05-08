@@ -715,24 +715,19 @@ if (isset($_GET['edit_item_id'])) {
                             </div>
                         </li>
 
+                        <!-- Feedback -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="#" data-section="feedbackSection">
                                 <i class="bi bi-chat-left-text me-2"></i>
                                 Feedback
                             </a>
                         </li>
 
+                        <!-- Generate Report -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="#" data-section="generateReportSection">
                                 <i class="bi bi-file-earmark-bar-graph me-2"></i>
                                 Generate Report
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-people me-2"></i>
-                                Users
                             </a>
                         </li>
                     </ul>
@@ -798,23 +793,23 @@ if (isset($_GET['edit_item_id'])) {
                                     </p>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="col-md-6 col-lg-3">
-                                <div class="card" aria-label="Attendance">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <h5 class="card-title">Attendance</h5>
-                                                <h2 class="mb-0">
-                                                    <?= count($attendances) ?>
-                                                </h2>
-                                            </div>
-                                            <div class="card-icon" aria-hidden="true">
-                                                <i class="bi bi-person-check"></i>
-                                            </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card" aria-label="Attendance">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Attendance</h5>
+                                            <h2 class="mb-0">
+                                                <?= count($attendances) ?>
+                                            </h2>
                                         </div>
-                                        <p class="card-text text-muted small mt-2">Total attendance records</p>
+                                        <div class="card-icon" aria-hidden="true">
+                                            <i class="bi bi-person-check"></i>
+                                        </div>
                                     </div>
+                                    <p class="card-text text-muted small mt-2">Total attendance records</p>
                                 </div>
                             </div>
                         </div>
@@ -1339,271 +1334,287 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
+                <!-- Feedback Section -->
+                <section id="feedbackSection" class="section-container d-none">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">Feedback Management</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Feedback Form -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-header">
+                                                    <h5 class="card-title mb-0">Submit Feedback</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="feedbackForm">
+                                                        <div class="mb-3">
+                                                            <label for="feedbackType" class="form-label">Feedback Type</label>
+                                                            <select class="form-select" id="feedbackType" name="feedbackType" required>
+                                                                <option value="">Select Type</option>
+                                                                <option value="suggestion">Suggestion</option>
+                                                                <option value="complaint">Complaint</option>
+                                                                <option value="praise">Praise</option>
+                                                                <option value="other">Other</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="feedbackTitle" class="form-label">Title</label>
+                                                            <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="feedbackDescription" class="form-label">Description</label>
+                                                            <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="feedbackPriority" class="form-label">Priority</label>
+                                                            <select class="form-select" id="feedbackPriority" name="feedbackPriority" required>
+                                                                <option value="low">Low</option>
+                                                                <option value="medium">Medium</option>
+                                                                <option value="high">High</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-send me-2"></i>Submit Feedback
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Feedback List -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                    <h5 class="card-title mb-0">Recent Feedback</h5>
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                            Filter
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="#">All</a></li>
+                                                            <li><a class="dropdown-item" href="#">Suggestions</a></li>
+                                                            <li><a class="dropdown-item" href="#">Complaints</a></li>
+                                                            <li><a class="dropdown-item" href="#">Praise</a></li>
+                                                            <li><a class="dropdown-item" href="#">Other</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Type</th>
+                                                                    <th>Title</th>
+                                                                    <th>Priority</th>
+                                                                    <th>Status</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td colspan="5" class="text-center">No feedback records found.</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Generate Report Section -->
+                <section id="generateReportSection" class="section-container d-none">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">Generate Reports</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Events Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Events Report</h5>
+                                                    <p class="card-text">Generate a report of all events and their attendance.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="events">
+                                                        <div class="mb-3">
+                                                            <label for="eventDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="eventDateRange" name="date_range">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Attendance Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Attendance Report</h5>
+                                                    <p class="card-text">Generate a report of attendance records for all events.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="attendance">
+                                                        <div class="mb-3">
+                                                            <label for="attendanceDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="attendanceDateRange" name="date_range">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Lost and Found Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Lost and Found Report</h5>
+                                                    <p class="card-text">Generate a report of all lost and found items.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="lost_and_found">
+                                                        <div class="mb-3">
+                                                            <label for="lostFoundDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="lostFoundDateRange" name="date_range">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
         </div>
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarExpandBtn = document.getElementById('sidebarExpandBtn');
-        const sidebar = document.getElementById('sidebar');
-        const content = document.getElementById('content');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
 
-        const navLinks = document.querySelectorAll('#sidebar .nav-link[data-section]');
-        const sections = document.querySelectorAll('main section.section-container');
+        // Initialize all popovers
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            sidebar.classList.toggle('collapsed');
-            content.classList.toggle('expanded');
-            sidebarExpandBtn.style.display = sidebar.classList.contains('collapsed') ? 'block' : 'none';
-        }
-
-        // Check window width for initial sidebar state
-        function checkWidth() {
-            if (window.innerWidth < 768) {
-                sidebar.classList.add('collapsed');
-                content.classList.add('expanded');
-                sidebarExpandBtn.style.display = 'block';
-            } else {
-                sidebar.classList.remove('collapsed');
-                content.classList.remove('expanded');
-                sidebarExpandBtn.style.display = 'none';
-            }
-        }
-
-        // Show section by id and update active links
-        function showSection(id) {
-            sections.forEach(section => section.classList.add('d-none'));
-            const target = document.getElementById(id);
-            if (target) {
-                target.classList.remove('d-none');
-            }
-            navLinks.forEach(link => {
-                link.classList.toggle('active', link.getAttribute('data-section') === id);
+        // Initialize all collapse elements
+        var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'));
+        var collapseList = collapseElementList.map(function (collapseEl) {
+            return new bootstrap.Collapse(collapseEl, {
+                toggle: false
             });
-        }
-
-        // Initial check
-        checkWidth();
-
-        // Event listeners
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        sidebarExpandBtn.addEventListener('click', toggleSidebar);
-        window.addEventListener('resize', checkWidth);
-
-        // Collapse menus and toggle
-        const eventsCollapse = new bootstrap.Collapse(document.getElementById('eventsSubMenu'), {
-            toggle: false
-        });
-        const attendanceCollapse = new bootstrap.Collapse(document.getElementById('attendanceSubMenu'), {
-            toggle: false
-        });
-        const paymentsCollapse = new bootstrap.Collapse(document.getElementById('paymentsSubMenu'), {
-            toggle: false
-        });
-        const eventsToggleAnchor = document.querySelector('a[href="#eventsSubMenu"]');
-        const attendanceToggleAnchor = document.querySelector('a[href="#attendanceSubMenu"]');
-        const paymentsToggleAnchor = document.querySelector('a[href="#paymentsSubMenu"]');
-
-        eventsToggleAnchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const isExpanded = document.getElementById('eventsSubMenu').classList.contains('show');
-            if (isExpanded) {
-                eventsCollapse.hide();
-            } else {
-                eventsCollapse.show();
-                attendanceCollapse.hide();
-                paymentsCollapse.hide();
-            }
         });
 
-        attendanceToggleAnchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const isExpanded = document.getElementById('attendanceSubMenu').classList.contains('show');
-            if (isExpanded) {
-                attendanceCollapse.hide();
-            } else {
-                attendanceCollapse.show();
-                eventsCollapse.hide();
-                paymentsCollapse.hide();
-            }
-        });
-
-        paymentsToggleAnchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const isExpanded = document.getElementById('paymentsSubMenu').classList.contains('show');
-            if (isExpanded) {
-                paymentsCollapse.hide();
-            } else {
-                paymentsCollapse.show();
-                eventsCollapse.hide();
-                attendanceCollapse.hide();
-            }
-        });
-
-        // Navigation links click handler
-        navLinks.forEach(link => {
-            link.addEventListener('click', function (e) {
+        // Handle section navigation
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                const section = this.getAttribute('data-section');
-                if (section) {
-                    showSection(section);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                const targetSection = this.getAttribute('data-section');
+                showSection(targetSection);
+            });
+        });
+
+        // Handle Lost and Found navigation
+        document.getElementById('navAddItem').addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection('addItemSection');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.getElementById('navViewItems').addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection('viewItemsSection');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Handle image preview
+        const imageInput = document.getElementById('itemImage');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
                 }
             });
-        });
-
-        // Add Lost and Found navigation handler
-        const lostAndFoundLink = document.querySelector('a[href="#lostAndFoundSection"]');
-        if (lostAndFoundLink) {
-            lostAndFoundLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                showSection('lostAndFoundSection');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
         }
 
-        // Submenu links click handler (events, attendance, payments)
-        document.querySelectorAll('#eventsSubMenu .nav-link').forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                showSection(link.getAttribute('data-section'));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
-
-        document.querySelectorAll('#attendanceSubMenu .nav-link').forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                showSection(link.getAttribute('data-section'));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
-
-        document.querySelectorAll('#paymentsSubMenu .nav-link').forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                showSection(link.getAttribute('data-section'));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
-
-        // Special buttons for canceling forms
-        const cancelCreateEventBtn = document.getElementById('cancelCreateEventBtn');
-        const cancelRecordAttendanceBtn = document.getElementById('cancelRecordAttendanceBtn');
-        const cancelCreatePaymentBtn = document.getElementById('cancelCreatePaymentBtn');
-        const cancelAddItemBtn = document.getElementById('cancelAddItemBtn');
-
-        if (cancelCreateEventBtn) {
-            cancelCreateEventBtn.addEventListener('click', function () {
-                showSection('viewEventsSection');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        if (cancelRecordAttendanceBtn) {
-            cancelRecordAttendanceBtn.addEventListener('click', function () {
-                showSection('viewAttendanceSection');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        if (cancelCreatePaymentBtn) {
-            cancelCreatePaymentBtn.addEventListener('click', function () {
-                showSection('viewPaymentsSection');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        if (cancelAddItemBtn) {
-            cancelAddItemBtn.addEventListener('click', function () {
-                showSection('lostAndFoundSection');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-
-        // Handle Lost and Found form submission
-        const addItemForm = document.getElementById('addItemForm');
-        if (addItemForm) {
-            addItemForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('create_item', '1');
-
-                fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.reload();
-                    }
-                });
-            });
-        }
-
-        // On page load, show based on URL params or default
-        function showInitialSection() {
-            const urlParams = new URLSearchParams(window.location.search);
-
-            if (urlParams.has('edit_id')) {
-                showSection('createEventSection');
-                eventsCollapse.classList.add('show');
-                attendanceCollapse.classList.remove('show');
-                paymentsCollapse.classList.remove('show');
-            } else if (urlParams.has('edit_att_id')) {
-                showSection('recordAttendanceSection');
-                attendanceCollapse.classList.add('show');
-                eventsCollapse.classList.remove('show');
-                paymentsCollapse.classList.remove('show');
-            } else if (urlParams.has('edit_pay_id')) {
-                showSection('createPaymentSection');
-                paymentsCollapse.classList.add('show');
-                eventsCollapse.classList.remove('show');
-                attendanceCollapse.classList.remove('show');
-            } else if (urlParams.has('edit_item_id')) {
-                showSection('lostAndFoundSection');
-                paymentsCollapse.hide();
-                eventsCollapse.hide();
-                attendanceCollapse.hide();
-            } else {
-                const hash = window.location.hash.replace('#', '');
-                if (hash && document.getElementById(hash)) {
-                    showSection(hash);
-                    if (hash === 'createEventSection' || hash === 'viewEventsSection') {
-                        eventsCollapse.classList.add('show');
-                        attendanceCollapse.classList.remove('show');
-                        paymentsCollapse.classList.remove('show');
-                    } else if (hash === 'recordAttendanceSection' || hash === 'viewAttendanceSection') {
-                        attendanceCollapse.classList.add('show');
-                        eventsCollapse.classList.remove('show');
-                        paymentsCollapse.classList.remove('show');
-                    } else if (hash === 'createPaymentSection' || hash === 'viewPaymentsSection') {
-                        paymentsCollapse.classList.add('show');
-                        eventsCollapse.classList.remove('show');
-                        attendanceCollapse.classList.remove('show');
-                    } else if (hash === 'lostAndFoundSection') {
-                        eventsCollapse.classList.remove('show');
-                        attendanceCollapse.classList.remove('show');
-                        paymentsCollapse.classList.remove('show');
-                    } else {
-                        eventsCollapse.classList.remove('show');
-                        attendanceCollapse.classList.remove('show');
-                        paymentsCollapse.classList.remove('show');
-                    }
-                } else {
-                    showSection('viewAttendanceSection');
-                    attendanceCollapse.classList.add('show');
-                    eventsCollapse.classList.remove('show');
-                    paymentsCollapse.classList.remove('show');
-                }
-            }
-        }
-
-        showInitialSection();
+        // Show dashboard by default
+        showSection('dashboardSection');
     });
+
+    // Function to show/hide sections
+    function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.section-container').forEach(section => {
+            section.classList.add('d-none');
+        });
+        
+        // Show the selected section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.remove('d-none');
+        }
+    }
+
+    // Function to confirm delete
+    function confirmDelete(id, type) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            window.location.href = `?delete_${type}=${id}`;
+        }
+    }
 </script>
 
 </body>
