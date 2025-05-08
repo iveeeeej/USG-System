@@ -373,7 +373,7 @@ if (isset($_GET['edit_item_id'])) {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>USG-Officer_Dashboard</title>
+        <title>USG-Student_Dashboard</title>
         <link rel="icon" href="../img/USG-Logo.jpg" />
 
         <link rel="stylesheet" href="main.css" />
@@ -550,7 +550,7 @@ if (isset($_GET['edit_item_id'])) {
                         <!-- Attendance -->
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-section="attendanceSection" id="navAttendance">
-                                <i class="bi bi-calendar-check me-2"></i>
+                                <i class="bi bi-people me-2"></i>
                                 Attendance
                             </a>
                         </li>
