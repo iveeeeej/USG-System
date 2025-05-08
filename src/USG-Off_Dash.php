@@ -612,7 +612,7 @@ if (isset($_GET['edit_item_id'])) {
                         <!-- Home -->
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-section="dashboardSection" id="navDashboard">
-                                <i class="bi bi-house"></i>
+                                <i class="bi bi-house me-2"></i>
                                 Home
                             </a>
                         </li>
@@ -635,7 +635,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="viewEventsSection" id="navViewEvents">
                                             <i class="bi bi-eye me-2"></i>
-                                            View Events
+                                            Event Log
                                         </a>
                                     </li>
                                 </ul>
@@ -645,7 +645,7 @@ if (isset($_GET['edit_item_id'])) {
                         <!-- Attendance Menu -->
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#attendanceSubMenu" role="button" aria-expanded="false" aria-controls="attendanceSubMenu" id="navAttendanceCollapseBtn">
-                                <i class="bi bi-people"></i>
+                                <i class="bi bi-people me-2"></i>
                                 Attendance
                                 <i class="bi bi-chevron-down ms-2"></i>
                             </a>
@@ -660,7 +660,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="viewAttendanceSection" id="navViewAttendance">
                                             <i class="bi bi-eye me-2"></i>
-                                            View Attendance
+                                            Attendance Log
                                         </a>
                                     </li>
                                 </ul>
@@ -670,7 +670,7 @@ if (isset($_GET['edit_item_id'])) {
                         <!-- Payments Menu -->
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#paymentsSubMenu" role="button" aria-expanded="false" aria-controls="paymentsSubMenu" id="navPaymentsCollapseBtn">
-                                <i class="bi bi-cash-coin"></i>
+                                <i class="bi bi-cash-coin me-2"></i>
                                 Payments
                                 <i class="bi bi-chevron-down ms-2"></i>
                             </a>
@@ -685,7 +685,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="viewPaymentsSection" id="navViewPayments">
                                             <i class="bi bi-eye me-2"></i>
-                                            View Payments
+                                            Payment Log
                                         </a>
                                     </li>
                                 </ul>
@@ -695,7 +695,7 @@ if (isset($_GET['edit_item_id'])) {
                         <!-- Lost and Found Menu -->
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="collapse" href="#lostAndFoundSubMenu" role="button" aria-expanded="false" aria-controls="lostAndFoundSubMenu">
-                                <i class="bi bi-question-diamond"></i>
+                                <i class="bi bi-question-diamond me-2"></i>
                                 Lost and Found
                                 <i class="bi bi-chevron-down ms-2"></i>
                             </a>
@@ -704,13 +704,13 @@ if (isset($_GET['edit_item_id'])) {
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="addItemSection" id="navAddItem">
                                             <i class="bi bi-plus-circle me-2"></i>
-                                            Add New Item
+                                            Add Item
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="viewItemsSection" id="navViewItems">
                                             <i class="bi bi-eye me-2"></i>
-                                            View Items
+                                            Lost Item Log
                                         </a>
                                     </li>
                                 </ul>
@@ -1453,12 +1453,24 @@ if (isset($_GET['edit_item_id'])) {
                                                         <input type="hidden" name="report_type" value="events">
                                                         <div class="mb-3">
                                                             <label for="eventDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="eventDateRange" name="date_range">
+                                                            <select class="form-select" id="eventDateRange" name="date_range" onchange="toggleCustomDates(this, 'eventCustomDates')">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
                                                                 <option value="custom">Custom Range</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="eventCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="eventStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="eventStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="eventEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="eventEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-download me-2"></i>Download Report
@@ -1478,12 +1490,24 @@ if (isset($_GET['edit_item_id'])) {
                                                         <input type="hidden" name="report_type" value="attendance">
                                                         <div class="mb-3">
                                                             <label for="attendanceDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="attendanceDateRange" name="date_range">
+                                                            <select class="form-select" id="attendanceDateRange" name="date_range" onchange="toggleCustomDates(this, 'attendanceCustomDates')">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
                                                                 <option value="custom">Custom Range</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="attendanceCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="attendanceStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="attendanceStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="attendanceEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="attendanceEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-download me-2"></i>Download Report
@@ -1503,12 +1527,24 @@ if (isset($_GET['edit_item_id'])) {
                                                         <input type="hidden" name="report_type" value="payments">
                                                         <div class="mb-3">
                                                             <label for="paymentDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="paymentDateRange" name="date_range">
+                                                            <select class="form-select" id="paymentDateRange" name="date_range" onchange="toggleCustomDates(this, 'paymentCustomDates')">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
                                                                 <option value="custom">Custom Range</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="paymentCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="paymentStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="paymentStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="paymentEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="paymentEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-download me-2"></i>Download Report
@@ -1528,12 +1564,24 @@ if (isset($_GET['edit_item_id'])) {
                                                         <input type="hidden" name="report_type" value="lost_and_found">
                                                         <div class="mb-3">
                                                             <label for="lostFoundDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="lostFoundDateRange" name="date_range">
+                                                            <select class="form-select" id="lostFoundDateRange" name="date_range" onchange="toggleCustomDates(this, 'lostFoundCustomDates')">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
                                                                 <option value="custom">Custom Range</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="lostFoundCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="lostFoundStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="lostFoundStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="lostFoundEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="lostFoundEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-download me-2"></i>Download Report
@@ -1553,12 +1601,24 @@ if (isset($_GET['edit_item_id'])) {
                                                         <input type="hidden" name="report_type" value="feedback">
                                                         <div class="mb-3">
                                                             <label for="feedbackDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="feedbackDateRange" name="date_range">
+                                                            <select class="form-select" id="feedbackDateRange" name="date_range" onchange="toggleCustomDates(this, 'feedbackCustomDates')">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
                                                                 <option value="custom">Custom Range</option>
                                                             </select>
+                                                        </div>
+                                                        <div id="feedbackCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="feedbackStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="feedbackStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="feedbackEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="feedbackEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-download me-2"></i>Download Report
@@ -1719,6 +1779,16 @@ if (isset($_GET['edit_item_id'])) {
     function confirmDelete(id, type) {
         if (confirm('Are you sure you want to delete this item?')) {
             window.location.href = `?delete_${type}=${id}`;
+        }
+    }
+
+    // Add this JavaScript function at the end of your script section
+    function toggleCustomDates(selectElement, customDatesId) {
+        const customDatesDiv = document.getElementById(customDatesId);
+        if (selectElement.value === 'custom') {
+            customDatesDiv.classList.remove('d-none');
+        } else {
+            customDatesDiv.classList.add('d-none');
         }
     }
 </script>
