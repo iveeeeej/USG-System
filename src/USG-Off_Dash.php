@@ -465,6 +465,8 @@ if (isset($_GET['edit_item_id'])) {
         <link rel="stylesheet" href="main.css" />
         <link rel="stylesheet" href="../node_modules/bootstrap-icons/font/bootstrap-icons.min.css" />
         <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- FullCalendar CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
 
         <style>
             body {
@@ -739,14 +741,14 @@ if (isset($_GET['edit_item_id'])) {
 
                 <!-- Alert Messages -->
                 <?php if ($successMessage): ?>
-                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" id="successAlert">
                         <?= $successMessage ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
 
                 <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" id="errorAlert">
                         <ul class="mb-0">
                             <?php foreach ($errors as $error): ?>
                                 <li><?= htmlspecialchars($error) ?></li>
@@ -760,19 +762,9 @@ if (isset($_GET['edit_item_id'])) {
                 <section id="dashboardSection" class="section-container d-none">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2">Dashboard</h1>
-                        <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="btn-group me-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                                <i class="bi bi-calendar"></i>
-                                This week
-                            </button>
-                        </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6 col-lg-3">
                             <div class="card" aria-label="Total Events">
                                 <div class="card-body">
@@ -813,267 +805,78 @@ if (isset($_GET['edit_item_id'])) {
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card" aria-label="Payments">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Payments</h5>
+                                            <h2 class="mb-0">
+                                                <?= count($payments) ?>
+                                            </h2>
+                                        </div>
+                                        <div class="card-icon" aria-hidden="true">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </div>
+                                    </div>
+                                    <p class="card-text text-muted small mt-2">Total payment records</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card" aria-label="Lost and Found">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Lost and Found</h5>
+                                            <h2 class="mb-0">
+                                                <?= count($lostAndFoundItems) ?>
+                                            </h2>
+                                        </div>
+                                        <div class="card-icon" aria-hidden="true">
+                                            <i class="bi bi-question-diamond"></i>
+                                        </div>
+                                    </div>
+                                    <p class="card-text text-muted small mt-2">Total items recorded</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Report Card (full width below) -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="General Report">
+                                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title">General Report</h5>
+                                        <p class="card-text text-muted mb-2">Generate and download summary reports for all sections.</p>
+                                    </div>
+                                    <a href="#generateReportSection" class="btn btn-primary mt-3 mt-md-0" data-section="generateReportSection">
+                                        <i class="bi bi-file-earmark-bar-graph me-2"></i>View Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Card (full width below) -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="Calendar">
+                                <div class="card-body">
+                                    <h5 class="card-title">Calendar</h5>
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Create Event Section -->
                 <section id="createEventSection" class="section-container d-none" aria-label="Create Event Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">
-                                        <?= $editEvent ? 'Edit Event' : 'Create New Event' ?>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="createEventForm" method="post" novalidate>
-                                        <input type="hidden" name="<?= $editEvent ? 'update_event' : 'create_event' ?>" value="1" />
-                                        <?php if ($editEvent): ?>
-                                            <input type="hidden" name="event_id" value="<?= $editEvent['id'] ?>" />
-                                        <?php endif; ?>
-                                        <div class="mb-3">
-                                            <label for="eventName" class="form-label">Event Name*</label>
-                                            <input type="text" class="form-control" id="eventName" name="eventName" required value="<?= htmlspecialchars($_POST['eventName'] ?? $editEvent['eventname'] ?? '') ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date*</label>
-                                            <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['startdate'])) : '')) ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date*</label>
-                                            <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['enddate'])) : '')) ?>" />
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="eventDescription" class="form-label">Description</label>
-                                            <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editEvent['description'] ?? '') ?></textarea>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelCreateEventBtn">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editEvent ? 'Update Event' : 'Create Event' ?>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- View Events Section -->
-                <section id="viewEventsSection" class="section-container d-none" aria-label="View Events Section">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Events</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover" id="eventsTable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">Event Name</th>
-                                                    <th scope="col">Start Date</th>
-                                                    <th scope="col">End Date</th>
-                                                    <th scope="col">Description</th>
-                                                    <th scope="col" style="min-width: 110px">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (!empty($events)): ?>
-                                                    <?php foreach ($events as $index => $event): ?>
-                                                        <tr>
-                                                            <th scope="row">
-                                                                <?= $index + 1 ?>
-                                                            </th>
-                                                            <td>
-                                                                <?= htmlspecialchars($event['eventname']) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= (new DateTime($event['startdate']))->format('M d, Y ') ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= (new DateTime($event['enddate']))->format('M d, Y ') ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= nl2br(htmlspecialchars($event['description'])) ?>
-                                                            </td>
-                                                            <td>
-                                                                <a
-                                                                    href="?edit_id=<?= $event['id'] ?>#createEventSection"
-                                                                    class="btn btn-sm btn-outline-secondary"
-                                                                    aria-label="Edit Event <?= htmlspecialchars($event['eventname']) ?>"
-                                                                    ><i class="bi bi-pencil"></i
-                                                                ></a>
-                                                                <form
-                                                                    method="post"
-                                                                    class="inline-form"
-                                                                    onsubmit="return confirm('Are you sure you want to delete this event? This will also delete related attendance records.');"
-                                                                    aria-label="Delete Event <?= htmlspecialchars($event['eventname']) ?>"
-                                                                >
-                                                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>" />
-                                                                    <button type="submit" name="delete_event" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php else: ?>
-                                                    <tr>
-                                                        <td colspan="7" class="text-center">No events found.</td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Record Attendance Section -->
-                <section id="recordAttendanceSection" class="section-container d-none" aria-label="Record Attendance Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">
-                                        <?= $editAttendance ? 'Edit Attendance' : 'Record Attendance' ?>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="attendanceForm" method="post" novalidate>
-                                        <input type="hidden" name="<?= $editAttendance ? 'update_attendance' : 'create_attendance' ?>" value="1" />
-                                        <?php if ($editAttendance): ?>
-                                            <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
-                                        <?php endif; ?>
-                                        <div class="mb-3">
-                                            <label for="attendeeName" class="form-label">Attendee Name*</label>
-                                            <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attDate" class="form-label">Date*</label>
-                                                <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? $editAttendance['date'] ?? '') ?>" />
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="attTime" class="form-label">Time*</label>
-                                                <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="attEvent" class="form-label">Event*</label>
-                                            <select class="form-select" id="attEvent" name="attEvent" required>
-                                                <option value="">Select Event</option>
-                                                <?php
-                                                $selectedEvent = $_POST['attEvent'] ?? $editAttendance['event_id'] ?? '';
-                                                foreach ($events as $event) {
-                                                    $selected = ($selectedEvent == $event['id']) ? 'selected' : '';
-                                                    echo "<option value=\"{$event['id']}\" $selected>" . htmlspecialchars($event['eventname']) . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelRecordAttendanceBtn">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editAttendance ? 'Update Attendance' : 'Record Attendance' ?>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- View Attendance Section -->
-                <section id="viewAttendanceSection" class="section-container d-none" aria-label="View Attendance Section">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Attendance Records</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover" id="attendanceTable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">Attendee Name</th>
-                                                    <th scope="col">Date</th>
-                                                    <th scope="col">Time</th>
-                                                    <th scope="col">Event</th>
-                                                    <th scope="col" style="min-width: 110px">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (!empty($attendances)): ?>
-                                                    <?php foreach ($attendances as $index => $attendance): ?>
-                                                        <tr>
-                                                            <th scope="row">
-                                                                <?= $index + 1 ?>
-                                                            </th>
-                                                            <td>
-                                                                <?= htmlspecialchars($attendance['name']) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= htmlspecialchars($attendance['date']) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= htmlspecialchars(date('H:i', strtotime($attendance['time']))) ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= htmlspecialchars($attendance['eventname']) ?>
-                                                            </td>
-                                                            <td>
-                                                                <a
-                                                                    href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection"
-                                                                    class="btn btn-sm btn-outline-secondary"
-                                                                    aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>"
-                                                                    ><i class="bi bi-pencil"></i
-                                                                ></a>
-                                                                <form
-                                                                    method="post"
-                                                                    class="inline-form"
-                                                                    onsubmit="return confirm('Are you sure you want to delete this attendance record?');"
-                                                                    aria-label="Delete Attendance for <?= htmlspecialchars($attendance['name']) ?>"
-                                                                >
-                                                                    <input type="hidden" name="attendance_id" value="<?= $attendance['id'] ?>" />
-                                                                    <button type="submit" name="delete_attendance" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php else: ?>
-                                                    <tr>
-                                                        <td colspan="6" class="text-center">No attendance records found.</td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Create Payment Section -->
-                <section id="createPaymentSection" class="section-container d-none" aria-label="Create Payment Section">
                     <div class="row justify-content-center">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
@@ -1493,6 +1296,31 @@ if (isset($_GET['edit_item_id'])) {
                                             </div>
                                         </div>
 
+                                        <!-- Payment Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Payment Report</h5>
+                                                    <p class="card-text">Generate a report of all payment records.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="payments">
+                                                        <div class="mb-3">
+                                                            <label for="paymentDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="paymentDateRange" name="date_range">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <!-- Lost and Found Report -->
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
@@ -1504,6 +1332,31 @@ if (isset($_GET['edit_item_id'])) {
                                                         <div class="mb-3">
                                                             <label for="lostFoundDateRange" class="form-label">Date Range</label>
                                                             <select class="form-select" id="lostFoundDateRange" name="date_range">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Feedback Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Feedback Report</h5>
+                                                    <p class="card-text">Generate a report of all feedback records.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="feedback">
+                                                        <div class="mb-3">
+                                                            <label for="feedbackDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="feedbackDateRange" name="date_range">
                                                                 <option value="week">Last Week</option>
                                                                 <option value="month">Last Month</option>
                                                                 <option value="year">Last Year</option>
@@ -1529,8 +1382,27 @@ if (isset($_GET['edit_item_id'])) {
         </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+
+        if (successAlert) {
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(successAlert);
+                alert.close();
+            }, 5000);
+        }
+
+        if (errorAlert) {
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(errorAlert);
+                alert.close();
+            }, 5000);
+        }
+
         // Initialize all tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -1593,6 +1465,43 @@ if (isset($_GET['edit_item_id'])) {
 
         // Show dashboard by default
         showSection('dashboardSection');
+
+        // Initialize FullCalendar in the Home section
+        var calendarEl = document.getElementById('calendar');
+        if (calendarEl) {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                height: 500,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                },
+                selectable: false,
+                editable: false,
+                events: [] // Ready for dynamic events in the future
+            });
+            calendar.render();
+        }
+
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('.main-content');
+        const sidebarExpandBtn = document.getElementById('sidebarExpandBtn');
+
+        if (sidebarToggle && sidebar && mainContent) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+        }
+        if (sidebarExpandBtn && sidebar && mainContent) {
+            sidebarExpandBtn.addEventListener('click', function() {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            });
+        }
     });
 
     // Function to show/hide sections
