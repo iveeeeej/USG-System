@@ -1,148 +1,123 @@
 <?php
-// Database connection info
-$host    = 'localhost';
-$db      = 'db_usg_main';
-$user    = 'root';
-$pass    = '';
-$charset = 'utf8mb4';
+session_start();
+require_once 'db_connection.php';
 
-// Set up DSN and options
-$dsn     = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
-
-// Connect to database
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    die('Database connection failed: ' . $e->getMessage());
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Not logged in']);
+    exit;
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $response = ['success' => false, 'message' => ''];
-    
+$user_id = $_SESSION['user_id'];
+
+// Handle GET request to fetch user data
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
+        $con = getDatabaseConnection();
+        
+        // Get user profile data
+        $stmt = $con->prepare("SELECT user_fullname, user_mail, department, user_img FROM user_prof WHERE user_id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($row = $result->fetch_assoc()) {
+            // Split fullname into first and last name
+            $name_parts = explode(' ', $row['user_fullname']);
+            $firstName = $name_parts[0];
+            $lastName = isset($name_parts[1]) ? $name_parts[1] : '';
+            
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'email' => $row['user_mail'],
+                    'department' => $row['department'],
+                    'profileImage' => $row['user_img'] ? base64_encode($row['user_img']) : null
+                ]
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+        }
+        
+        $stmt->close();
+        $con->close();
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+
+// Handle POST request to update user data
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $con = getDatabaseConnection();
+        
         // Get form data
         $firstName = $_POST['firstName'] ?? '';
         $lastName = $_POST['lastName'] ?? '';
         $email = $_POST['email'] ?? '';
-        $position = $_POST['position'] ?? '';
         $department = $_POST['department'] ?? '';
         $currentPassword = $_POST['currentPassword'] ?? '';
         $newPassword = $_POST['newPassword'] ?? '';
         
-        // Validate required fields
-        if (empty($firstName) || empty($lastName) || empty($email) || empty($position) || empty($department)) {
-            throw new Exception('All fields are required');
-        }
-        
-        // Handle profile image upload
-        $profileImage = null;
-        if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            $maxSize = 5 * 1024 * 1024; // 5MB
-            
-            if (!in_array($_FILES['profileImage']['type'], $allowedTypes)) {
-                throw new Exception('Invalid image type. Please upload a JPEG, PNG, or GIF image.');
-            }
-            
-            if ($_FILES['profileImage']['size'] > $maxSize) {
-                throw new Exception('Image size too large. Maximum size is 5MB.');
-            }
-            
-            $profileImage = file_get_contents($_FILES['profileImage']['tmp_name']);
-        }
+        // Combine first and last name
+        $fullname = trim($firstName . ' ' . $lastName);
         
         // Start transaction
-        $pdo->beginTransaction();
+        $con->begin_transaction();
         
-        // Update user information
-        $sql = "UPDATE users SET 
-                first_name = ?, 
-                last_name = ?, 
-                email = ?, 
-                position = ?, 
-                department = ?";
+        // Update user profile
+        $stmt = $con->prepare("UPDATE user_prof SET user_fullname = ?, user_mail = ?, department = ? WHERE user_id = ?");
+        $stmt->bind_param("sssi", $fullname, $email, $department, $user_id);
+        $stmt->execute();
         
-        $params = [$firstName, $lastName, $email, $position, $department];
-        
-        // Add profile image if uploaded
-        if ($profileImage) {
-            $sql .= ", profile_image = ?";
-            $params[] = $profileImage;
+        // Handle profile image upload
+        if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
+            $imageData = file_get_contents($_FILES['profileImage']['tmp_name']);
+            $stmt = $con->prepare("UPDATE user_prof SET user_img = ? WHERE user_id = ?");
+            $stmt->bind_param("bi", $imageData, $user_id);
+            $stmt->execute();
         }
         
-        // Add password update if provided
-        if (!empty($currentPassword) && !empty($newPassword)) {
+        // Handle password change if provided
+        if ($currentPassword && $newPassword) {
             // Verify current password
-            $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
-            $stmt->execute([$_SESSION['user_id']]);
-            $user = $stmt->fetch();
+            $stmt = $con->prepare("SELECT acc_pass FROM user_acc WHERE user_id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
             
-            if (!password_verify($currentPassword, $user['password'])) {
-                throw new Exception('Current password is incorrect');
+            if ($row = $result->fetch_assoc()) {
+                if ($row['acc_pass'] === $currentPassword) {
+                    // Update password
+                    $stmt = $con->prepare("UPDATE user_acc SET acc_pass = ? WHERE user_id = ?");
+                    $stmt->bind_param("si", $newPassword, $user_id);
+                    $stmt->execute();
+                } else {
+                    throw new Exception('Current password is incorrect');
+                }
             }
-            
-            $sql .= ", password = ?";
-            $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
         }
-        
-        $sql .= " WHERE id = ?";
-        $params[] = $_SESSION['user_id'];
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
         
         // Commit transaction
-        $pdo->commit();
+        $con->commit();
         
-        $response['success'] = true;
-        $response['message'] = 'Profile updated successfully';
+        echo json_encode(['success' => true, 'message' => 'Profile updated successfully']);
         
     } catch (Exception $e) {
         // Rollback transaction on error
-        $pdo->rollBack();
-        $response['message'] = $e->getMessage();
+        if (isset($con)) {
+            $con->rollback();
+        }
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
+        if (isset($con)) {
+            $con->close();
+        }
     }
-    
-    // Send JSON response
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    exit;
-}
-
-// Get current user data
-try {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->execute([$_SESSION['user_id']]);
-    $userData = $stmt->fetch();
-    
-    if (!$userData) {
-        throw new Exception('User not found');
-    }
-    
-    // Send user data as JSON
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => true,
-        'data' => [
-            'firstName' => $userData['first_name'],
-            'lastName' => $userData['last_name'],
-            'email' => $userData['email'],
-            'position' => $userData['position'],
-            'department' => $userData['department'],
-            'profileImage' => $userData['profile_image'] ? base64_encode($userData['profile_image']) : null
-        ]
-    ]);
-    
-} catch (Exception $e) {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
 }
 ?> 

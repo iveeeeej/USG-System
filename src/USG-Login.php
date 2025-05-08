@@ -5,29 +5,38 @@ require_once 'db_connection.php'; // Ensure this function throws exceptions on f
 $login_error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $acc_id = $_POST['acc_id'];
+    $user_id = $_POST['acc_id'];
     $acc_pass = $_POST['acc_pass'];
 
     try {
-        $con = getDatabaseConnection(); // This function should throw an exception on failure
+        $con = getDatabaseConnection();
 
-        $stmt = $con->prepare("SELECT acc_pass FROM acc WHERE acc_id = ?");
-        $stmt->bind_param("i", $acc_id);
+        // Debug: Log the input values
+        error_log("Login attempt - User ID: " . $user_id . ", Password: " . $acc_pass);
+
+        // Check if user exists in user_prof and use user_id as password
+        $stmt = $con->prepare("SELECT user_id, user_fullname 
+                             FROM user_prof 
+                             WHERE user_id = ? AND user_id = ?");
+        $stmt->bind_param("is", $user_id, $acc_pass);
         $stmt->execute();
         $result = $stmt->get_result();
 
+        // Debug: Log the query result
+        error_log("Query result rows: " . $result->num_rows);
+
         if ($result->num_rows === 1) {
             $row = $result->fetch_assoc();
+            
+            // Debug: Log the retrieved data
+            error_log("Retrieved data - Password: " . ($row['acc_pass'] ?? 'null'));
 
-            if ($row['acc_pass'] === $acc_pass) {
-                $_SESSION['acc_id'] = $acc_id;
-                header("Location: USG-Off_Dash.php");
-                exit();
-            } else {
-                $login_error = "ERROR: Incorrect Credentials.";
-            }
+            $_SESSION['user_id'] = $row['user_id'];
+            $_SESSION['user_fullname'] = $row['user_fullname'];
+            header("Location: USG-Off_Dash.php");
+            exit();
         } else {
-            $login_error = "ERROR: Account not Found!";
+            $login_error = "ERROR: Incorrect Credentials.";
         }
 
         $stmt->close();

@@ -1673,11 +1673,6 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="position" class="form-label">Position</label>
-                                            <input type="text" class="form-control" id="position" name="position" required>
-                                        </div>
-
-                                        <div class="mb-3">
                                             <label for="department" class="form-label">Department</label>
                                             <input type="text" class="form-control" id="department" name="department" required>
                                         </div>
@@ -1867,7 +1862,6 @@ if (isset($_GET['edit_item_id'])) {
                             document.getElementById('firstName').value = data.data.firstName;
                             document.getElementById('lastName').value = data.data.lastName;
                             document.getElementById('email').value = data.data.email;
-                            document.getElementById('position').value = data.data.position;
                             document.getElementById('department').value = data.data.department;
                             
                             if (data.data.profileImage) {
