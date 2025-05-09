@@ -663,7 +663,7 @@ if (isset($_GET['edit_item_id'])) {
 
                         <!-- Attendance Menu -->
                         <li class="nav-item">
-                            <a class="nav-link"  href="#attendanceSubMenu" role="button" aria-expanded="false" aria-controls="attendanceSubMenu" id="navAttendanceCollapseBtn">
+                            <a class="nav-link"  href="#" data-section="attendanceSection">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
                             </a>
@@ -941,7 +941,7 @@ if (isset($_GET['edit_item_id'])) {
                 </section>
 
                 <!-- Record Attendance Section -->
-                <section id="recordAttendanceSection" class="section-container d-none" aria-label="Record Attendance Section">
+                <section id="attendanceSection" class="section-container d-none">
                     <div class="row justify-content-center">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
@@ -994,62 +994,7 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
-                <!-- View Attendance Section -->
-                <section id="viewAttendanceSection" class="section-container d-none" aria-label="View Attendance Section">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Attendances</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover" id="attendanceTable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">Attendee Name</th>
-                                                    <th scope="col">Attendance Date</th>
-                                                    <th scope="col">Attendance Time</th>
-                                                    <th scope="col">Event</th>
-                                                    <th scope="col" style="min-width: 110px">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if (!empty($attendances)): ?>
-                                                    <?php foreach ($attendances as $index => $attendance): ?>
-                                                        <tr>
-                                                            <th scope="row"><?= $index + 1 ?></th>
-                                                            <td><?= htmlspecialchars($attendance['name']) ?></td>
-                                                            <td><?= (new DateTime($attendance['date']))->format('M d, Y') ?></td>
-                                                            <td><?= (new DateTime($attendance['time']))->format('h:i A') ?></td>
-                                                            <td><?= htmlspecialchars($attendance['eventname']) ?></td>
-                                                            <td>
-                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
-                                                                    <i class="bi bi-pencil"></i>
-                                                                </a>
-                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this attendance record?');" aria-label="Delete Attendance for <?= htmlspecialchars($attendance['name']) ?>">
-                                                                    <input type="hidden" name="attendance_id" value="<?= $attendance['id'] ?>" />
-                                                                    <button type="submit" name="delete_attendance" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                <?php else: ?>
-                                                    <tr>
-                                                        <td colspan="6" class="text-center">No attendance records found.</td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                
 
                 <!-- Create Payment Section -->
                 <section id="createPaymentSection" class="section-container d-none" aria-label="Create Payment Section">
