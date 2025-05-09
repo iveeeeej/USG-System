@@ -1,4 +1,6 @@
 <?php
+session_start(); // Add session start at the beginning
+
 // Database connection info
 $host    = 'localhost';
 $db      = 'db_usg_main';
@@ -16,11 +18,32 @@ $options = [
 // Initialize variables
 $successMessage = '';
 $errors         = [];
+$userFullname   = isset($_SESSION['user_fullname']) ? $_SESSION['user_fullname'] : '';
 
 // Connect to database
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
+    
+    // Debug: Check if session has user_id
+    error_log("Session user_id: " . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'not set'));
+    
+    // Fetch user's full name if logged in
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare('SELECT user_fullname FROM user_prof WHERE user_id = ?');
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch();
+        
+        // Debug: Log the query result
+        error_log("Query result: " . ($result ? print_r($result, true) : 'no result'));
+        
+        if ($result) {
+            $userFullname = $result['user_fullname'];
+            // Debug: Log the fullname
+            error_log("User fullname set to: " . $userFullname);
+        }
+    }
 } catch (\PDOException $e) {
+    error_log("Database error: " . $e->getMessage());
     exit('Database connection failed: ' . $e->getMessage());
 }
 
@@ -505,7 +528,7 @@ if (isset($_GET['edit_item_id'])) {
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 d-none d-md-inline">Admin Panel</span>
+                    <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
                         <img id="adminLogoImg" src="../img/default-profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
