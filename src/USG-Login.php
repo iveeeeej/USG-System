@@ -15,10 +15,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         error_log("Login attempt - User ID: " . $user_id . ", Password: " . $acc_pass);
 
         // Check if user exists in user_prof and use user_id as password
-        $stmt = $con->prepare("SELECT user_id, user_fullname 
-                             FROM user_prof 
-                             WHERE user_id = ? AND user_id = ?");
-        $stmt->bind_param("ss", $user_id, $acc_pass);
+        $stmt = $con->prepare("SELECT u.user_id, u.user_fullname 
+                             FROM user_prof u
+                             WHERE u.user_id = ? AND u.user_id = ?");
+        $stmt->bind_param("ii", $user_id, $acc_pass);
         $stmt->execute();
         $result = $stmt->get_result();
 

@@ -1,4 +1,12 @@
 <?php
+session_start(); // Add session start at the beginning
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: USG-Login.php");
+    exit();
+}
+
 // Database connection info
 $host    = 'localhost';
 $db      = 'db_usg_main';
@@ -16,11 +24,28 @@ $options = [
 // Initialize variables
 $successMessage = '';
 $errors         = [];
+$userFullname   = '';
 
 // Connect to database
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
+    
+    // Fetch user's full name if logged in
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare('SELECT user_fullname FROM user_prof WHERE user_id = ?');
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch();
+        if ($result) {
+            $userFullname = $result['user_fullname'];
+            error_log('User fullname retrieved: ' . $userFullname); // Debug log
+        } else {
+            error_log('No user found with ID: ' . $_SESSION['user_id']); // Debug log
+        }
+    } else {
+        error_log('No user_id in session'); // Debug log
+    }
 } catch (\PDOException $e) {
+    error_log('Database error: ' . $e->getMessage());
     exit('Database connection failed: ' . $e->getMessage());
 }
 
@@ -591,7 +616,7 @@ if (isset($_GET['edit_item_id'])) {
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 d-none d-md-inline">Admin Panel</span>
+                    <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
                         <img id="adminLogoImg" src="../img/default-profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
