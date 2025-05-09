@@ -596,6 +596,10 @@ if (isset($_GET['edit_item_id'])) {
                 display: inline-block;
                 margin: 0;
             }
+            .card-body .attn-btn {
+                display: flex;
+                justify-content: center;
+            }
         </style>
 
     </head>
@@ -647,7 +651,7 @@ if (isset($_GET['edit_item_id'])) {
 
                         <!-- Home -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="dashboardSection" id="navDashboard">
+                            <a class="nav-link" href="#" data-section="studashboardSection" id="navDashboard">
                                 <i class="bi bi-house me-2"></i>
                                 Home
                             </a>
@@ -655,7 +659,7 @@ if (isset($_GET['edit_item_id'])) {
 
                         <!-- Events Menu -->
                         <li class="nav-item">
-                            <a class="nav-link"  href="#eventsSubMenu" role="button" aria-expanded="true" aria-controls="eventsSubMenu">
+                            <a class="nav-link"  href="#" data-section="viewEventsSection">
                                 <i class="bi bi-calendar-event me-2"></i>
                                 Events
                             </a>
@@ -663,7 +667,7 @@ if (isset($_GET['edit_item_id'])) {
 
                         <!-- Attendance Menu -->
                         <li class="nav-item">
-                            <a class="nav-link"  href="#" data-section="attendanceSection">
+                            <a class="nav-link"  href="#" data-section="recordAttendanceSection">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
                             </a>
@@ -671,7 +675,7 @@ if (isset($_GET['edit_item_id'])) {
 
                         <!-- Payments Menu -->
                         <li class="nav-item">
-                            <a class="nav-link"  href="#paymentsSubMenu" role="button" aria-expanded="false" aria-controls="paymentsSubMenu" id="navPaymentsCollapseBtn">
+                            <a class="nav-link"  href="#" data-section="viewPaymentsSection">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Payments
                             </a>
@@ -720,7 +724,7 @@ if (isset($_GET['edit_item_id'])) {
                 <?php endif; ?>
 
                 <!-- Dashboard Section -->
-                <section id="dashboardSection" class="section-container d-none">
+                <section id="studashboardSection" class="section-container d-none">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2">Dashboard</h1>
                     </div>
@@ -749,7 +753,7 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
 
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('viewAttendanceSection')">
+                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('recordAttendanceSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
@@ -806,23 +810,6 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
                     </div>
 
-                    <!-- General Report Card (full width below) -->
-                    <div class="row g-4 mt-1">
-                        <div class="col-12">
-                            <div class="card" aria-label="General Report">
-                                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="card-title">General Report</h5>
-                                        <p class="card-text text-muted mb-2">Generate and download summary reports for all sections.</p>
-                                    </div>
-                                    <a href="#generateReportSection" class="btn btn-primary mt-3 mt-md-0" data-section="generateReportSection">
-                                        <i class="bi bi-file-earmark-bar-graph me-2"></i>View Report
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Calendar Card (full width below) -->
                     <div class="row g-4 mt-1">
                         <div class="col-12">
@@ -830,53 +817,6 @@ if (isset($_GET['edit_item_id'])) {
                                 <div class="card-body">
                                     <h5 class="card-title">Calendar</h5>
                                     <div id="calendar"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Create Event Section -->
-                <section id="createEventSection" class="section-container d-none" aria-label="Create Event Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">
-                                        <?= $editEvent ? 'Edit Event' : 'Create New Event' ?>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="createEventForm" method="post" novalidate>
-                                        <input type="hidden" name="<?= $editEvent ? 'update_event' : 'create_event' ?>" value="1" />
-                                        <?php if ($editEvent): ?>
-                                            <input type="hidden" name="event_id" value="<?= $editEvent['id'] ?>" />
-                                        <?php endif; ?>
-                                        <div class="mb-3">
-                                            <label for="eventName" class="form-label">Event Name*</label>
-                                            <input type="text" class="form-control" id="eventName" name="eventName" required value="<?= htmlspecialchars($_POST['eventName'] ?? $editEvent['eventname'] ?? '') ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date*</label>
-                                            <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['startdate'])) : '')) ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date*</label>
-                                            <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['enddate'])) : '')) ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="eventDescription" class="form-label">Description</label>
-                                            <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editEvent['description'] ?? '') ?></textarea>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelCreateEventBtn">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editEvent ? 'Update Event' : 'Create Event' ?>
-                                            </button>
-                                        </div>
-                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -915,14 +855,8 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= htmlspecialchars($event['description']) ?></td>
                                                             <td>
                                                                 <a href="?edit_id=<?= $event['id'] ?>#createEventSection" class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit Event <?= htmlspecialchars($event['eventname']) ?>">
-                                                                    <i class="bi bi-pencil"></i>
+                                                                    <i class="bi bi-check-circle"></i>
                                                                 </a>
-                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this event?');" aria-label="Delete Event <?= htmlspecialchars($event['eventname']) ?>">
-                                                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>" />
-                                                                    <button type="submit" name="delete_event" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -941,7 +875,7 @@ if (isset($_GET['edit_item_id'])) {
                 </section>
 
                 <!-- Record Attendance Section -->
-                <section id="attendanceSection" class="section-container d-none">
+                <section id="recordAttendanceSection" class="section-container d-none">
                     <div class="row justify-content-center">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
@@ -952,22 +886,7 @@ if (isset($_GET['edit_item_id'])) {
                                 </div>
                                 <div class="card-body">
                                     <form id="recordAttendanceForm" method="post" novalidate>
-                                        <input type="hidden" name="<?= $editAttendance ? 'update_attendance' : 'create_attendance' ?>" value="1" />
-                                        <?php if ($editAttendance): ?>
-                                            <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
-                                        <?php endif; ?>
-                                        <div class="mb-3">
-                                            <label for="attendeeName" class="form-label">Attendee Name*</label>
-                                            <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="attDate" class="form-label">Attendance Date*</label>
-                                            <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="attTime" class="form-label">Attendance Time*</label>
-                                            <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
-                                        </div>
+                                        
                                         <div class="mb-3">
                                             <label for="attEvent" class="form-label">Event*</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
@@ -979,13 +898,11 @@ if (isset($_GET['edit_item_id'])) {
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelRecordAttendanceBtn">
-                                                Cancel
+                                        <div class="text-end attn-btn">
+                                            <button type="button" class="btn btn-success me-2 h-50 w-25 p-3" id="cancelRecordAttendanceBtn">
+                                                Check In
                                             </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editAttendance ? 'Update Attendance' : 'Record Attendance' ?>
-                                            </button>
+                                            
                                         </div>
                                     </form>
                                 </div>
@@ -994,58 +911,9 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
-                
-
-                <!-- Create Payment Section -->
-                <section id="createPaymentSection" class="section-container d-none" aria-label="Create Payment Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">
-                                        <?= $editPayment ? 'Edit Payment' : 'Create New Payment' ?>
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <form id="createPaymentForm" method="post" novalidate>
-                                        <input type="hidden" name="<?= $editPayment ? 'update_payment' : 'create_payment' ?>" value="1" />
-                                        <?php if ($editPayment): ?>
-                                            <input type="hidden" name="pay_id" value="<?= $editPayment['pay_id'] ?>" />
-                                        <?php endif; ?>
-                                        <div class="mb-3">
-                                            <label for="PaymentName" class="form-label">Payment Name*</label>
-                                            <input type="text" class="form-control" id="PaymentName" name="PaymentName" required value="<?= htmlspecialchars($_POST['PaymentName'] ?? $editPayment['payname'] ?? '') ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date*</label>
-                                            <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date*</label>
-                                            <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_enddate'])) : '')) ?>" />
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="eventDescription" class="form-label">Description</label>
-                                            <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editPayment['pay_description'] ?? '') ?></textarea>
-                                        </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelCreatePaymentBtn">
-                                                Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editPayment ? 'Update Payment' : 'Create Payment' ?>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 <!-- View Payments Section -->
-                <section id="viewPaymentsSection" class="section-container d-none" aria-label="View Payments Section">
+                <section id="viewPaymentsSection" class="section-container d-none>
                     <div class="row">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
@@ -1062,7 +930,6 @@ if (isset($_GET['edit_item_id'])) {
                                                     <th scope="col">Start Date</th>
                                                     <th scope="col">End Date</th>
                                                     <th scope="col">Description</th>
-                                                    <th scope="col" style="min-width: 110px">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1074,17 +941,6 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= (new DateTime($payment['pay_startdate']))->format('M d, Y') ?></td>
                                                             <td><?= (new DateTime($payment['pay_enddate']))->format('M d, Y') ?></td>
                                                             <td><?= htmlspecialchars($payment['pay_description']) ?></td>
-                                                            <td>
-                                                                <a href="?edit_pay_id=<?= $payment['pay_id'] ?>#createPaymentSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Payment for <?= htmlspecialchars($payment['payname']) ?>">
-                                                                    <i class="bi bi-pencil"></i>
-                                                                </a>
-                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this payment record?');" aria-label="Delete Payment for <?= htmlspecialchars($payment['payname']) ?>">
-                                                                    <input type="hidden" name="pay_id" value="<?= $payment['pay_id'] ?>" />
-                                                                    <button type="submit" name="delete_payment" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
@@ -1240,6 +1096,7 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
+<!-- ---------------------------------------------------------------------------------------------------------------------- -->
                 <!-- Feedback Section -->
                 <section id="feedbackSection" class="section-container d-none">
                     <div class="row">
@@ -1700,7 +1557,7 @@ if (isset($_GET['edit_item_id'])) {
         }
 
         // Show dashboard by default
-        showSection('dashboardSection');
+        showSection('studashboardSection');
 
         // Initialize FullCalendar in the Home section
         var calendarEl = document.getElementById('calendar');
