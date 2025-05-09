@@ -1,6 +1,4 @@
 <?php
-session_start(); // Add session start at the beginning
-
 // Database connection info
 $host    = 'localhost';
 $db      = 'db_usg_main';
@@ -18,32 +16,11 @@ $options = [
 // Initialize variables
 $successMessage = '';
 $errors         = [];
-$userFullname   = isset($_SESSION['user_fullname']) ? $_SESSION['user_fullname'] : '';
 
 // Connect to database
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-    
-    // Debug: Check if session has user_id
-    error_log("Session user_id: " . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'not set'));
-    
-    // Fetch user's full name if logged in
-    if (isset($_SESSION['user_id'])) {
-        $stmt = $pdo->prepare('SELECT user_fullname FROM user_prof WHERE user_id = ?');
-        $stmt->execute([$_SESSION['user_id']]);
-        $result = $stmt->fetch();
-        
-        // Debug: Log the query result
-        error_log("Query result: " . ($result ? print_r($result, true) : 'no result'));
-        
-        if ($result) {
-            $userFullname = $result['user_fullname'];
-            // Debug: Log the fullname
-            error_log("User fullname set to: " . $userFullname);
-        }
-    }
 } catch (\PDOException $e) {
-    error_log("Database error: " . $e->getMessage());
     exit('Database connection failed: ' . $e->getMessage());
 }
 
@@ -118,6 +95,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_event'])) {
         $stmt->execute([$eventname, $startdate, $enddate, $description]);
         $successMessage = 'Event created successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewEventsSection');
+        exit();
+    }
+}
+
+// Handle Delete attendance request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_attendance'])) {
+    $deleteId = (int) ($_POST['attendance_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM attendance WHERE id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewAttendanceSection');
+        exit();
+    }
+}
+
+// Handle Update attendance request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_attendance'])) {
+    $updateId = (int) ($_POST['attendance_id'] ?? 0);
+    $name     = trim($_POST['attendeeName'] ?? '');
+    $date     = $_POST['attDate'] ?? '';
+    $time     = $_POST['attTime'] ?? '';
+    $event_id = (int) ($_POST['attEvent'] ?? 0);
+
+    // Validate input
+    if ($name === '') {
+        $errors[] = 'Attendee Name is required.';
+    }
+    if (!$date) {
+        $errors[] = 'Attendance Date is required.';
+    }
+    if (!$time) {
+        $errors[] = 'Attendance Time is required.';
+    }
+    if ($event_id <= 0) {
+        $errors[] = 'Valid Event is required.';
+    }
+
+    // Update if no errors
+    if (empty($errors) && $updateId > 0) {
+        $stmt = $pdo->prepare('UPDATE attendance SET name = ?, date = ?, time = ?, event_id = ? WHERE id = ?');
+        $stmt->execute([$name, $date, $time, $event_id, $updateId]);
+        $successMessage = 'Attendance updated successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewAttendanceSection');
+        exit();
+    }
+}
+
+// Handle Create Attendance
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance'])) {
+    $name     = trim($_POST['attendeeName'] ?? '');
+    $date     = $_POST['attDate'] ?? '';
+    $time     = $_POST['attTime'] ?? '';
+    $event_id = (int) ($_POST['attEvent'] ?? 0);
+
+    // Validate input
+    if ($name === '') {
+        $errors[] = 'Attendee Name is required.';
+    }
+    if (!$date) {
+        $errors[] = 'Attendance Date is required.';
+    }
+    if (!$time) {
+        $errors[] = 'Attendance Time is required.';
+    }
+    if ($event_id <= 0) {
+        $errors[] = 'Valid Event is required.';
+    }
+
+    // Create if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$name, $date, $time, $event_id]);
+        $successMessage = 'Attendance recorded successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
         exit();
     }
 }
@@ -317,6 +368,10 @@ try {
     $stmt   = $pdo->query('SELECT * FROM events ORDER BY startdate DESC');
     $events = $stmt->fetchAll();
 
+    // Fetch attendance with event names
+    $stmt        = $pdo->query('SELECT a.*, e.eventname FROM attendance a JOIN events e ON a.event_id = e.id ORDER BY a.date DESC, a.time DESC');
+    $attendances = $stmt->fetchAll();
+
     // Fetch payments
     $stmt     = $pdo->query('SELECT * FROM pay ORDER BY pay_startdate DESC');
     $payments = $stmt->fetchAll();
@@ -364,13 +419,21 @@ if (isset($_GET['msg'])) {
     $successMessage = htmlspecialchars($_GET['msg']);
 }
 
-// Check edit event or payment request
+// Check edit event or attendance or payment request
 $editEvent = null;
 if (isset($_GET['edit_id'])) {
     $editId = (int) $_GET['edit_id'];
     $stmt   = $pdo->prepare('SELECT * FROM events WHERE id = ?');
     $stmt->execute([$editId]);
     $editEvent = $stmt->fetch();
+}
+
+$editAttendance = null;
+if (isset($_GET['edit_att_id'])) {
+    $editAttId = (int) $_GET['edit_att_id'];
+    $stmt      = $pdo->prepare('SELECT * FROM attendance WHERE id = ?');
+    $stmt->execute([$editAttId]);
+    $editAttendance = $stmt->fetch();
 }
 
 $editPayment = null;
@@ -528,7 +591,7 @@ if (isset($_GET['edit_item_id'])) {
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
+                    <span class="me-2 d-none d-md-inline">Admin Panel</span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
                         <img id="adminLogoImg" src="../img/default-profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
@@ -556,6 +619,7 @@ if (isset($_GET['edit_item_id'])) {
 
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
+
                         <!-- Home -->
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-section="dashboardSection" id="navDashboard">
@@ -563,48 +627,47 @@ if (isset($_GET['edit_item_id'])) {
                                 Home
                             </a>
                         </li>
-                        <!-- Events -->
+
+                        <!-- Events Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="eventsSection" id="navEvents">
+                            <a class="nav-link"  href="#eventsSubMenu" role="button" aria-expanded="true" aria-controls="eventsSubMenu">
                                 <i class="bi bi-calendar-event me-2"></i>
                                 Events
                             </a>
                         </li>
-                        <!-- Attendance -->
+
+                        <!-- Attendance Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="attendanceSection" id="navAttendance">
+                            <a class="nav-link"  href="#attendanceSubMenu" role="button" aria-expanded="false" aria-controls="attendanceSubMenu" id="navAttendanceCollapseBtn">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
                             </a>
                         </li>
-                        <!-- Payments -->
+
+                        <!-- Payments Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="paymentsSection" id="navPayments">
+                            <a class="nav-link"  href="#paymentsSubMenu" role="button" aria-expanded="false" aria-controls="paymentsSubMenu" id="navPaymentsCollapseBtn">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Payments
                             </a>
                         </li>
-                        <!-- Lost and Found -->
+
+                        <!-- Lost and Found Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="lostAndFoundSection" id="navLostAndFound">
+                            <a class="nav-link"  href="#lostAndFoundSubMenu" role="button" aria-expanded="false" aria-controls="lostAndFoundSubMenu">
                                 <i class="bi bi-question-diamond me-2"></i>
                                 Lost and Found
                             </a>
                         </li>
+
                         <!-- Feedback -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="feedbackSection" id="navFeedback">
+                            <a class="nav-link" href="#" data-section="feedbackSection">
                                 <i class="bi bi-chat-left-text me-2"></i>
                                 Feedback
                             </a>
                         </li>
-                        <!-- Generate Report -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="generateReportSection" id="navGenerateReport">
-                                <i class="bi bi-file-earmark-bar-graph me-2"></i>
-                                Generate Report
-                            </a>
-                        </li>
+
                     </ul>
                 </div>
             </nav>
@@ -661,6 +724,25 @@ if (isset($_GET['edit_item_id'])) {
                         </div>
 
                         <div class="col-md-6 col-lg-3">
+                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('viewAttendanceSection')">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title">Attendance</h5>
+                                            <h2 class="mb-0">
+                                                <?= count($attendances) ?>
+                                            </h2>
+                                        </div>
+                                        <div class="card-icon" aria-hidden="true">
+                                            <i class="bi bi-person-check"></i>
+                                        </div>
+                                    </div>
+                                    <p class="card-text text-muted small mt-2">Total attendance records</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3">
                             <div class="card" aria-label="Payments" style="cursor: pointer;" onclick="showSection('viewPaymentsSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
@@ -700,6 +782,31 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
 
                     <!-- General Report Card (full width below) -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="General Report">
+                                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title">General Report</h5>
+                                        <p class="card-text text-muted mb-2">Generate and download summary reports for all sections.</p>
+                                    </div>
+                                    <a href="#generateReportSection" class="btn btn-primary mt-3 mt-md-0" data-section="generateReportSection">
+                                        <i class="bi bi-file-earmark-bar-graph me-2"></i>View Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Card (full width below) -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="Calendar">
+                                <div class="card-body">
+                                    <h5 class="card-title">Calendar</h5>
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -797,6 +904,117 @@ if (isset($_GET['edit_item_id'])) {
                                                 <?php else: ?>
                                                     <tr>
                                                         <td colspan="6" class="text-center">No events found.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Record Attendance Section -->
+                <section id="recordAttendanceSection" class="section-container d-none" aria-label="Record Attendance Section">
+                    <div class="row justify-content-center">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">
+                                        <?= $editAttendance ? 'Edit Attendance' : 'Record New Attendance' ?>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="recordAttendanceForm" method="post" novalidate>
+                                        <input type="hidden" name="<?= $editAttendance ? 'update_attendance' : 'create_attendance' ?>" value="1" />
+                                        <?php if ($editAttendance): ?>
+                                            <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
+                                        <?php endif; ?>
+                                        <div class="mb-3">
+                                            <label for="attendeeName" class="form-label">Attendee Name*</label>
+                                            <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="attDate" class="form-label">Attendance Date*</label>
+                                            <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="attTime" class="form-label">Attendance Time*</label>
+                                            <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="attEvent" class="form-label">Event*</label>
+                                            <select class="form-select" id="attEvent" name="attEvent" required>
+                                                <option value="">Select Event</option>
+                                                <?php foreach ($events as $event): ?>
+                                                    <option value="<?= $event['id'] ?>" <?= (($_POST['attEvent'] ?? $editAttendance['event_id'] ?? '') == $event['id']) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($event['eventname']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="button" class="btn btn-danger me-2" id="cancelRecordAttendanceBtn">
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <?= $editAttendance ? 'Update Attendance' : 'Record Attendance' ?>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View Attendance Section -->
+                <section id="viewAttendanceSection" class="section-container d-none" aria-label="View Attendance Section">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">All Attendances</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="attendanceTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Attendee Name</th>
+                                                    <th scope="col">Attendance Date</th>
+                                                    <th scope="col">Attendance Time</th>
+                                                    <th scope="col">Event</th>
+                                                    <th scope="col" style="min-width: 110px">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (!empty($attendances)): ?>
+                                                    <?php foreach ($attendances as $index => $attendance): ?>
+                                                        <tr>
+                                                            <th scope="row"><?= $index + 1 ?></th>
+                                                            <td><?= htmlspecialchars($attendance['name']) ?></td>
+                                                            <td><?= (new DateTime($attendance['date']))->format('M d, Y') ?></td>
+                                                            <td><?= (new DateTime($attendance['time']))->format('h:i A') ?></td>
+                                                            <td><?= htmlspecialchars($attendance['eventname']) ?></td>
+                                                            <td>
+                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </a>
+                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this attendance record?');" aria-label="Delete Attendance for <?= htmlspecialchars($attendance['name']) ?>">
+                                                                    <input type="hidden" name="attendance_id" value="<?= $attendance['id'] ?>" />
+                                                                    <button type="submit" name="delete_attendance" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No attendance records found.</td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -1052,58 +1270,6 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
-                <!-- Record Attendance Section -->
-                <section id="recordAttendanceSection" class="section-container d-none" aria-label="Record Attendance Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Record Attendance</h5>
-                                </div>
-                                <div class="card-body">
-                                    <!-- Attendance form will be added here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- View Attendance Section -->
-                <section id="viewAttendanceSection" class="section-container d-none" aria-label="View Attendance Section">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Attendance Log</h5>
-                                </div>
-                                <div class="card-body">
-                                    <!-- Attendance table will be added here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Attendance Section (single, styled) -->
-                <section id="attendanceSection" class="section-container" aria-label="Attendance Section">
-                    <div class="row justify-content-center">
-                        <div class="col-12 col-md-8 col-lg-7">
-                            <div class="card mt-5 mb-5 shadow-lg" style="border-radius: 32px;">
-                                <div class="card-header" style="background: #888; border-top-left-radius: 32px; border-top-right-radius: 32px;">
-                                    <h2 class="mb-0" style="font-weight: bold; color: #111;">Attendance</h2>
-                                </div>
-                                <div class="card-body d-flex flex-column align-items-center" style="padding: 48px 24px;">
-                                    <select class="form-select mb-5" style="width: 100%; max-width: 600px; font-size: 2rem; font-weight: bold; border: 4px solid #111; padding: 12px 24px;" aria-label="Select event">
-                                        <option selected disabled>Select event</option>
-                                        <!-- Event options will go here -->
-                                    </select>
-                                    <button class="btn" style="background: #27b33a; color: #111; font-size: 2rem; font-weight: bold; width: 350px; height: 120px; border-radius: 60px; border: none;">Sign In</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Feedback Section -->
                 <section id="feedbackSection" class="section-container d-none">
                     <div class="row">
@@ -1218,7 +1384,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <div class="card h-100">
                                                 <div class="card-body">
                                                     <h5 class="card-title">Events Report</h5>
-                                                    <p class="card-text">Generate a report of all events.</p>
+                                                    <p class="card-text">Generate a report of all events and their attendance.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="events">
                                                         <div class="mb-3">
@@ -1239,6 +1405,43 @@ if (isset($_GET['edit_item_id'])) {
                                                                 <div class="col-6">
                                                                     <label for="eventEndDate" class="form-label">End Date</label>
                                                                     <input type="date" class="form-control" id="eventEndDate" name="end_date">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bi bi-download me-2"></i>Download Report
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Attendance Report -->
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Attendance Report</h5>
+                                                    <p class="card-text">Generate a report of attendance records for all events.</p>
+                                                    <form method="post" action="generate_report.php">
+                                                        <input type="hidden" name="report_type" value="attendance">
+                                                        <div class="mb-3">
+                                                            <label for="attendanceDateRange" class="form-label">Date Range</label>
+                                                            <select class="form-select" id="attendanceDateRange" name="date_range" onchange="toggleCustomDates(this, 'attendanceCustomDates')">
+                                                                <option value="week">Last Week</option>
+                                                                <option value="month">Last Month</option>
+                                                                <option value="year">Last Year</option>
+                                                                <option value="custom">Custom Range</option>
+                                                            </select>
+                                                        </div>
+                                                        <div id="attendanceCustomDates" class="mb-3 d-none">
+                                                            <div class="row">
+                                                                <div class="col-6">
+                                                                    <label for="attendanceStartDate" class="form-label">Start Date</label>
+                                                                    <input type="date" class="form-control" id="attendanceStartDate" name="start_date">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <label for="attendanceEndDate" class="form-label">End Date</label>
+                                                                    <input type="date" class="form-control" id="attendanceEndDate" name="end_date">
                                                                 </div>
                                                             </div>
                                                         </div>
