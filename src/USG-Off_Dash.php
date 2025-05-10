@@ -1182,8 +1182,8 @@ if (isset($_GET['edit_item_id'])) {
                                                 <tr>
                                                     <th scope="col">No.</th>
                                                     <th scope="col">Payment Name</th>
-                                                    <th scope="col">Start Date</th>
-                                                    <th scope="col">End Date</th>
+                                                    <th scope="col">Due Date</th>
+                                                    <th scope="col">Cut-Off Date</th>
                                                     <th scope="col">Description</th>
                                                     <th scope="col" style="min-width: 110px">Actions</th>
                                                 </tr>

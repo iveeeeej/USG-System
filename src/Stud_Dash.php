@@ -425,7 +425,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                         </div>
                                     </div>
                                     <p class="card-text text-muted small mt-2" id="upcomingEventsCount">
-                                        Happening Now
+                                        Total Events Happening Now
                                     </p>
                                 </div>
                             </div>
@@ -446,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                             <i class="bi bi-person-check"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Check In</p>
+                                    <p class="card-text text-muted small mt-2">Click Here!</p>
                                 </div>
                             </div>
                         </div>
@@ -466,7 +466,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                             <i class="bi bi-cash-coin"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">View Payments</p>
+                                    <p class="card-text text-muted small mt-2">Total Payments Recorded</p>
                                 </div>
                             </div>
                         </div>
@@ -486,7 +486,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                             <i class="bi bi-question-diamond"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">View Lost Items</p>
+                                    <p class="card-text text-muted small mt-2">Total Lost Items Recorded</p>
                                 </div>
                             </div>
                         </div>
@@ -536,9 +536,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                                             <td><?= date('M d, Y', strtotime($event['enddate'])) ?></td>
                                                             <td><?= htmlspecialchars($event['description']) ?></td>
                                                             <td>
-                                                                <a href="?edit_id=<?= $event['id'] ?>#createEventSection" class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit Event <?= htmlspecialchars($event['eventname']) ?>">
+                                                                <button onclick="showSection('recordAttendanceForm')" class="btn btn-sm btn-outline-secondary me-1">
                                                                     <i class="bi bi-check-circle"></i>
-                                                                </a>
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>
@@ -616,10 +616,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                         <table class="table table-striped table-hover" id="paymentsTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Payment Name</th>
-                                                    <th scope="col">Start Date</th>
-                                                    <th scope="col">End Date</th>
+                                                    <th scope="col">Due Date</th>
+                                                    <th scope="col">Cut-Off Date</th>
                                                     <th scope="col">Description</th>
                                                 </tr>
                                             </thead>
