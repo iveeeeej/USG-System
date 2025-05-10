@@ -57,6 +57,7 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance'])) {
     $name     = trim($_POST['attendeeName'] ?? '');
     $date     = $_POST['attDate'] ?? '';
+    $time     = $_POST['attTime'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
     // Validate input
@@ -66,14 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
     if ($date <= 0) {
         $errors[] = 'Date is required.';
     }
+    if (!$time) {
+        $errors[] = 'Time is required.';
+    }
     if ($event_id <= 0) {
         $errors[] = 'Valid Event is required.';
     }
 
     // Create if no errors
     if (empty($errors)) {
-        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, event_id) VALUES (?, ?, ?)');
-        $stmt->execute([$name, $date, $event_id]);
+        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$name, $date, $time, $event_id]);
         $successMessage = 'Attendance recorded successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#recordAttendanceForm');
         exit();
@@ -581,6 +585,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                             <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
+                                            <label for="attTime" class="form-label">Time</label>
+                                            <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
                                             <label for="attEvent" class="form-label">Event</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
                                                 <option value="">Select Event</option>
@@ -618,6 +626,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                                 <tr>
                                                     <th scope="col">No.</th>
                                                     <th scope="col">Payment Name</th>
+                                                    <th scope="col">Amount</th>
                                                     <th scope="col">Due Date</th>
                                                     <th scope="col">Cut-Off Date</th>
                                                     <th scope="col">Description</th>
@@ -629,6 +638,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                                         <tr>
                                                             <th scope="row"><?= $index + 1 ?></th>
                                                             <td><?= htmlspecialchars($payment['payname']) ?></td>
+                                                            <td>₱<?= number_format($payment['amount'], 2) ?></td>
                                                             <td><?= (new DateTime($payment['pay_startdate']))->format('M d, Y') ?></td>
                                                             <td><?= (new DateTime($payment['pay_enddate']))->format('M d, Y') ?></td>
                                                             <td><?= htmlspecialchars($payment['pay_description']) ?></td>

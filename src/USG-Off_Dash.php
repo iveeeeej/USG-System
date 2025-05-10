@@ -162,10 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
         $errors[] = 'Attendee Name is required.';
     }
     if (!$date) {
-        $errors[] = 'Attendance Date is required.';
+        $errors[] = 'Date is required.';
     }
     if (!$time) {
-        $errors[] = 'Attendance Time is required.';
+        $errors[] = 'Time is required.';
     }
     if ($event_id <= 0) {
         $errors[] = 'Valid Event is required.';
@@ -196,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_payment'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_payment'])) {
     $updateId      = (int) ($_POST['pay_id'] ?? 0);
     $payname       = trim($_POST['PaymentName'] ?? '');
+    $amount        = trim($_POST['Amount'] ?? '');
     $pay_startdate = $_POST['startDate'] ?? '';
     $pay_enddate   = $_POST['endDate'] ?? '';
     $pay_description = trim($_POST['eventDescription'] ?? '');
@@ -203,6 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_payment'])) {
     // Validate input
     if ($payname === '') {
         $errors[] = 'Payment Name is required.';
+    }
+    if ($amount === '') {
+        $errors[] = 'Amount is required.';
     }
     if (!$pay_startdate) {
         $errors[] = 'Start Date is required.';
@@ -216,8 +220,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_payment'])) {
 
     // Update if no errors
     if (empty($errors) && $updateId > 0) {
-        $stmt = $pdo->prepare('UPDATE pay SET payname = ?, pay_startdate = ?, pay_enddate = ?, pay_description = ? WHERE pay_id = ?');
-        $stmt->execute([$payname, $pay_startdate, $pay_enddate, $pay_description, $updateId]);
+        $stmt = $pdo->prepare('UPDATE pay SET payname = ?, amount = ?, pay_startdate = ?, pay_enddate = ?, pay_description = ? WHERE pay_id = ?');
+        $stmt->execute([$payname, $amount, $pay_startdate, $pay_enddate, $pay_description, $updateId]);
         $successMessage = 'Payment updated successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '#viewPaymentsSection');
         exit();
@@ -227,6 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_payment'])) {
 // Handle Create Payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_payment'])) {
     $payname       = trim($_POST['PaymentName'] ?? '');
+    $amount        = trim($_POST['Amount'] ?? '');
     $pay_startdate = $_POST['startDate'] ?? '';
     $pay_enddate   = $_POST['endDate'] ?? '';
     $pay_description = trim($_POST['eventDescription'] ?? '');
@@ -234,6 +239,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_payment'])) {
     // Validate input
     if ($payname === '') {
         $errors[] = 'Payment Name is required.';
+    }
+    if ($amount === '') {
+        $errors[] = 'Amount is required.';
     }
     if (!$pay_startdate) {
         $errors[] = 'Start Date is required.';
@@ -247,8 +255,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_payment'])) {
 
     // Create if no errors
     if (empty($errors)) {
-        $stmt = $pdo->prepare('INSERT INTO pay (payname, pay_startdate, pay_enddate, pay_description) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$payname, $pay_startdate, $pay_enddate, $pay_description]);
+        $stmt = $pdo->prepare('INSERT INTO pay (payname, amount, pay_startdate, pay_enddate, pay_description) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$payname, $amount, $pay_startdate, $pay_enddate, $pay_description]);
         $successMessage = 'Payment created successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewPaymentsSection');
         exit();
@@ -1140,6 +1148,10 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="text" class="form-control" id="PaymentName" name="PaymentName" required value="<?= htmlspecialchars($_POST['PaymentName'] ?? $editPayment['payname'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
+                                            <label for="Amount" class="form-label">Amount</label>
+                                            <input type="text" class="form-control" id="Amount" name="Amount" required value="<?= htmlspecialchars($_POST['Amount'] ?? $editPayment['amount'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
                                             <label for="startDate" class="form-label">Due Date</label>
                                             <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
                                         </div>
@@ -1182,6 +1194,7 @@ if (isset($_GET['edit_item_id'])) {
                                                 <tr>
                                                     <th scope="col">No.</th>
                                                     <th scope="col">Payment Name</th>
+                                                    <th scope="col">Amount</th>
                                                     <th scope="col">Due Date</th>
                                                     <th scope="col">Cut-Off Date</th>
                                                     <th scope="col">Description</th>
@@ -1194,6 +1207,7 @@ if (isset($_GET['edit_item_id'])) {
                                                         <tr>
                                                             <th scope="row"><?= $index + 1 ?></th>
                                                             <td><?= htmlspecialchars($payment['payname']) ?></td>
+                                                            <td>₱<?= number_format($payment['amount'], 2) ?></td>
                                                             <td><?= (new DateTime($payment['pay_startdate']))->format('M d, Y') ?></td>
                                                             <td><?= (new DateTime($payment['pay_enddate']))->format('M d, Y') ?></td>
                                                             <td><?= htmlspecialchars($payment['pay_description']) ?></td>
