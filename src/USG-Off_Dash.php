@@ -778,14 +778,14 @@ if (isset($_GET['edit_item_id'])) {
             <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" role="main">
 
                 <!-- Alert Messages -->
-                <?php if ($successMessage): ?>
+                <?php if ($successMessage && isset($_GET['action'])): ?>
                     <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" id="successAlert">
                         <?= $successMessage ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($errors)): ?>
+                <?php if (!empty($errors) && isset($_GET['action'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" id="errorAlert">
                         <ul class="mb-0">
                             <?php foreach ($errors as $error): ?>
@@ -1744,6 +1744,36 @@ if (isset($_GET['edit_item_id'])) {
             }, 5000);
         }
 
+        // Handle URL hash changes and parameters
+        function handleNavigation() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showSection(hash);
+                // Scroll to top of the section
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Only show dashboard if no hash is present
+                showSection('dashboardSection');
+            }
+        }
+
+        // Initial navigation check
+        handleNavigation();
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleNavigation);
+
+        // Handle section navigation
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetSection = this.getAttribute('data-section');
+                showSection(targetSection);
+                // Update URL hash without triggering page reload
+                history.pushState(null, null, '#' + targetSection);
+            });
+        });
+
         // Initialize all tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -1761,15 +1791,6 @@ if (isset($_GET['edit_item_id'])) {
         var collapseList = collapseElementList.map(function (collapseEl) {
             return new bootstrap.Collapse(collapseEl, {
                 toggle: false
-            });
-        });
-
-        // Handle section navigation
-        document.querySelectorAll('[data-section]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetSection = this.getAttribute('data-section');
-                showSection(targetSection);
             });
         });
 
@@ -1804,8 +1825,8 @@ if (isset($_GET['edit_item_id'])) {
             });
         }
 
-        // Show dashboard by default
-        showSection('dashboardSection');
+        // Remove the default dashboard show
+        // showSection('dashboardSection');  // Remove this line if it exists
 
         // Initialize FullCalendar in the Home section
         var calendarEl = document.getElementById('calendar');
@@ -2014,4 +2035,5 @@ if (isset($_GET['edit_item_id'])) {
 </script>
 
 </body>
+</html>
 </html>

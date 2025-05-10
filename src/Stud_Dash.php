@@ -139,6 +139,8 @@ foreach ($events as $event) {
 // Check for success message from redirect
 if (isset($_GET['msg']) && isset($_GET['action'])) {
     $successMessage = htmlspecialchars($_GET['msg']);
+} else {
+    $successMessage = ''; // Clear any existing success message if no action parameter
 }
 
 $editAttendance = null;
@@ -347,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>USG-Student-Testing_Dashboard</title>
+        <title>USG-Student_Dashboard</title>
         <link rel="icon" href="../img/USG-Logo.jpg" />
 
         <link rel="stylesheet" href="main.css" />
@@ -563,14 +565,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" role="main">
 
                 <!-- Alert Messages -->
-                <?php if ($successMessage): ?>
+                <?php if ($successMessage && isset($_GET['action'])): ?>
                     <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" id="successAlert">
                         <?= $successMessage ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($errors)): ?>
+                <?php if (!empty($errors) && isset($_GET['action'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" id="errorAlert">
                         <ul class="mb-0">
                             <?php foreach ($errors as $error): ?>
@@ -1027,6 +1029,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             setTimeout(() => {
                 const alert = bootstrap.Alert.getOrCreateInstance(successAlert);
                 alert.close();
+                // Clear URL parameters after closing alert
+                const url = new URL(window.location.href);
+                url.searchParams.delete('msg');
+                url.searchParams.delete('action');
+                window.history.replaceState({}, '', url);
             }, 5000);
         }
 
@@ -1034,6 +1041,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             setTimeout(() => {
                 const alert = bootstrap.Alert.getOrCreateInstance(errorAlert);
                 alert.close();
+                // Clear URL parameters after closing alert
+                const url = new URL(window.location.href);
+                url.searchParams.delete('msg');
+                url.searchParams.delete('action');
+                window.history.replaceState({}, '', url);
             }, 5000);
         }
 
