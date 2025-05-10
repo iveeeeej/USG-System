@@ -990,12 +990,12 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= date('M d, Y', strtotime($event['enddate'])) ?></td>
                                                             <td><?= htmlspecialchars($event['description']) ?></td>
                                                             <td>
-                                                                <a href="?edit_id=<?= $event['id'] ?>#createEventSection" class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit Event <?= htmlspecialchars($event['eventname']) ?>">
+                                                                <a href="?edit_id=<?= $event['id'] ?>#createEventSection" class="btn btn-sm btn-primary me-1" aria-label="Edit Event <?= htmlspecialchars($event['eventname']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this event?');" aria-label="Delete Event <?= htmlspecialchars($event['eventname']) ?>">
                                                                     <input type="hidden" name="event_id" value="<?= $event['id'] ?>" />
-                                                                    <button type="submit" name="delete_event" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                    <button type="submit" name="delete_event" class="btn btn-sm btn-danger" title="Delete">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -1101,12 +1101,12 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= (new DateTime($attendance['time']))->format('h:i A') ?></td>
                                                             <td><?= htmlspecialchars($attendance['eventname']) ?></td>
                                                             <td>
-                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
+                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-primary" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this attendance record?');" aria-label="Delete Attendance for <?= htmlspecialchars($attendance['name']) ?>">
                                                                     <input type="hidden" name="attendance_id" value="<?= $attendance['id'] ?>" />
-                                                                    <button type="submit" name="delete_attendance" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                    <button type="submit" name="delete_attendance" class="btn btn-sm btn-danger" title="Delete">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -1212,12 +1212,12 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= (new DateTime($payment['pay_enddate']))->format('M d, Y') ?></td>
                                                             <td><?= htmlspecialchars($payment['pay_description']) ?></td>
                                                             <td>
-                                                                <a href="?edit_pay_id=<?= $payment['pay_id'] ?>#createPaymentSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Payment for <?= htmlspecialchars($payment['payname']) ?>">
+                                                                <a href="?edit_pay_id=<?= $payment['pay_id'] ?>#createPaymentSection" class="btn btn-sm btn-primary" aria-label="Edit Payment for <?= htmlspecialchars($payment['payname']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this payment record?');" aria-label="Delete Payment for <?= htmlspecialchars($payment['payname']) ?>">
                                                                     <input type="hidden" name="pay_id" value="<?= $payment['pay_id'] ?>" />
-                                                                    <button type="submit" name="delete_payment" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                    <button type="submit" name="delete_payment" class="btn btn-sm btn-danger" title="Delete">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -1350,12 +1350,12 @@ if (isset($_GET['edit_item_id'])) {
                                                                 </span>
                                                             </td>
                                                             <td>
-                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
+                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-primary" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this item?');" aria-label="Delete Item <?= htmlspecialchars($item['lst_name']) ?>">
                                                                     <input type="hidden" name="item_id" value="<?= $item['lst_id'] ?>" />
-                                                                    <button type="submit" name="delete_item" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                    <button type="submit" name="delete_item" class="btn btn-sm btn-danger" title="Delete">
                                                                         <i class="bi bi-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -1419,7 +1419,7 @@ if (isset($_GET['edit_item_id'])) {
                                                                 <td>
                                                                     <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                                                                         <input type="hidden" name="feedback_id" value="<?= $feedback['feed_id'] ?>" />
-                                                                        <button type="submit" name="delete_feedback" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                        <button type="submit" name="delete_feedback" class="btn btn-sm btn-danger" title="Delete">
                                                                             <i class="bi bi-trash"></i>
                                                                         </button>
                                                                     </form>

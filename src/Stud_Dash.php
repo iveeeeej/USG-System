@@ -596,7 +596,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                             </select>
                                         </div>
                                         <div class="text-end">
-                                            <button type="submit" class="btn btn-success me-2 mt-3 mt-md-0 fs-5">
+                                            <button type="submit" class="btn btn-success me-2">
                                                 <?= $editAttendance ? 'Check In' : 'Check In' ?>
                                             </button>
                                         </div>

@@ -42,7 +42,7 @@ switch ($reportType) {
         $dateColumn = 'date_found';
         break;
     case 'feedback':
-        $dateColumn = 'created_at';
+        $dateColumn = 'feed_id';
         break;
     default:
         die('Invalid report type');
@@ -96,9 +96,9 @@ switch ($reportType) {
         break;
 
     case 'feedback':
-        $query = "SELECT * FROM feedback WHERE 1=1 $dateCondition ORDER BY created_at DESC";
+        $query = "SELECT * FROM feedbk ORDER BY feed_id DESC";
         $filename = 'feedback_report.csv';
-        $headers = ['ID', 'Type', 'Title', 'Description', 'Priority', 'Status', 'Created At'];
+        $headers = ['ID', 'Type', 'Subject', 'Comment'];
         break;
 
     default:
@@ -173,13 +173,10 @@ try {
 
             case 'feedback':
                 $csvRow = [
-                    $row['id'],
-                    $row['type'],
-                    $row['title'],
-                    $row['description'],
-                    $row['priority'],
-                    $row['status'],
-                    $row['created_at']
+                    $row['feed_id'],
+                    $row['feed_type'],
+                    $row['feed_sub'],
+                    $row['feed_comm']
                 ];
                 break;
         }
