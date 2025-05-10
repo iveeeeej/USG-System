@@ -247,6 +247,10 @@ if (isset($_GET['msg'])) {
                 display: inline-block;
                 margin: 0;
             }
+            .section-container .attn-btn{
+                display: flex;
+                justify-content: center;
+            }
         </style>
 
     </head>
@@ -536,7 +540,6 @@ if (isset($_GET['msg'])) {
                                 </div>
                                 <div class="card-body">
                                     <form id="recordAttendanceForm" method="post" novalidate>
-                                        
                                         <div class="mb-3">
                                             <label for="attEvent" class="form-label">Event*</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
@@ -549,8 +552,8 @@ if (isset($_GET['msg'])) {
                                             </select>
                                         </div>
                                         <div class="text-end attn-btn">
-                                            <button type="button" class="btn btn-success me-2 h-50 w-25 p-3" id="cancelRecordAttendanceBtn">
-                                                Check In
+                                            <button type="button" class="btn btn-success me-2 mt-3 mt-md-0 fs-5" id="cancelRecordAttendanceBtn">
+                                                <i class="bi bi-check-circle me-2"></i>Check In
                                             </button>
                                             
                                         </div>
@@ -687,6 +690,7 @@ if (isset($_GET['msg'])) {
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">Feedback Management</h5>
                                 </div>
+
                                 <div class="card-body">
                                     <div class="row">
                                         <!-- Feedback Form -->
@@ -730,49 +734,9 @@ if (isset($_GET['msg'])) {
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Feedback List -->
-                                        <div class="col-md-6 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-header d-flex justify-content-between align-items-center">
-                                                    <h5 class="card-title mb-0">Recent Feedback</h5>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                            Filter
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#">All</a></li>
-                                                            <li><a class="dropdown-item" href="#">Suggestions</a></li>
-                                                            <li><a class="dropdown-item" href="#">Complaints</a></li>
-                                                            <li><a class="dropdown-item" href="#">Praise</a></li>
-                                                            <li><a class="dropdown-item" href="#">Other</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Type</th>
-                                                                    <th>Title</th>
-                                                                    <th>Priority</th>
-                                                                    <th>Status</th>
-                                                                    <th>Actions</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td colspan="5" class="text-center">No feedback records found.</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

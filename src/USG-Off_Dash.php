@@ -1,4 +1,12 @@
 <?php
+session_start(); // Add session start at the beginning
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: USG-Login.php");
+    exit();
+}
+
 // Database connection info
 $host    = 'localhost';
 $db      = 'db_usg_main';
@@ -1207,7 +1215,6 @@ if (isset($_GET['edit_item_id'])) {
                 </section>
 
                 <!-- Lost and Found Sections -->
-                <!-- Add New Item Section -->
                 <section id="addItemSection" class="section-container d-none" aria-label="Add New Item Section">
                     <div class="row justify-content-center">
                         <div class="col-12">
