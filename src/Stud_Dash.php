@@ -280,10 +280,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                 display: inline-block;
                 margin: 0;
             }
-            .section-container .attn-btn{
-                display: flex;
-                justify-content: center;
-            }
         </style>
 
     </head>
@@ -599,7 +595,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="text-end attn-btn">
+                                        <div class="text-end">
                                             <button type="submit" class="btn btn-success me-2 mt-3 mt-md-0 fs-5">
                                                 <?= $editAttendance ? 'Check In' : 'Check In' ?>
                                             </button>
@@ -728,38 +724,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                                 <div class="card-body">
                                     <div class="row">
                                         <!-- Feedback Form (now full width) -->
-                                        <div class="col-12 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-header">
-                                                    <h5 class="card-title mb-0">Submit Feedback</h5>
+                                        <div class="col-12">
+                                            <form id="feedbackForm" method="post" action="">
+                                                <input type="hidden" name="submit_feedback" value="1">
+                                                <div class="mb-3">
+                                                    <label for="feedbackType" class="form-label">Feedback Type</label>
+                                                    <select class="form-select" id="feedbackType" name="feedbackType" required>
+                                                        <option value="">Select Type</option>
+                                                        <option value="suggestion">Suggestion</option>
+                                                        <option value="complaint">Complaint</option>
+                                                        <option value="praise">Praise</option>
+                                                        <option value="other">Other</option>
+                                                    </select>
                                                 </div>
-                                                <div class="card-body">
-                                                    <form id="feedbackForm" method="post" action="">
-                                                        <input type="hidden" name="submit_feedback" value="1">
-                                                        <div class="mb-3">
-                                                            <label for="feedbackType" class="form-label">Feedback Type</label>
-                                                            <select class="form-select" id="feedbackType" name="feedbackType" required>
-                                                                <option value="">Select Type</option>
-                                                                <option value="suggestion">Suggestion</option>
-                                                                <option value="complaint">Complaint</option>
-                                                                <option value="praise">Praise</option>
-                                                                <option value="other">Other</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackTitle" class="form-label">Subject</label>
-                                                            <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackDescription" class="form-label">Comment</label>
-                                                            <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-send me-2"></i>Submit Feedback
-                                                        </button>
-                                                    </form>
+                                                <div class="mb-3">
+                                                    <label for="feedbackTitle" class="form-label">Subject</label>
+                                                    <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
                                                 </div>
-                                            </div>
+                                                <div class="mb-3">
+                                                    <label for="feedbackDescription" class="form-label">Comment</label>
+                                                    <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
+                                                </div>
+                                                <div class="text-end">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="bi bi-send me-2"></i>Submit Feedback
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
