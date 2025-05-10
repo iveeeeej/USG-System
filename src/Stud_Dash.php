@@ -690,11 +690,10 @@ if (isset($_GET['msg'])) {
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">Feedback Management</h5>
                                 </div>
-
                                 <div class="card-body">
                                     <div class="row">
-                                        <!-- Feedback Form -->
-                                        <div class="col-md-6 mb-4">
+                                        <!-- Feedback Form (now full width) -->
+                                        <div class="col-12 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-header">
                                                     <h5 class="card-title mb-0">Submit Feedback</h5>
@@ -719,14 +718,6 @@ if (isset($_GET['msg'])) {
                                                             <label for="feedbackDescription" class="form-label">Description</label>
                                                             <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
                                                         </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackPriority" class="form-label">Priority</label>
-                                                            <select class="form-select" id="feedbackPriority" name="feedbackPriority" required>
-                                                                <option value="low">Low</option>
-                                                                <option value="medium">Medium</option>
-                                                                <option value="high">High</option>
-                                                            </select>
-                                                        </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-send me-2"></i>Submit Feedback
                                                         </button>
@@ -736,7 +727,6 @@ if (isset($_GET['msg'])) {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
