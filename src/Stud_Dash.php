@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
         $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$name, $date, $time, $event_id]);
         $successMessage = 'Attendance recorded successfully.';
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#recordAttendanceForm');
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=attendance#recordAttendanceForm');
         exit();
     }
 }
@@ -137,7 +137,7 @@ foreach ($events as $event) {
 }
 
 // Check for success message from redirect
-if (isset($_GET['msg'])) {
+if (isset($_GET['msg']) && isset($_GET['action'])) {
     $successMessage = htmlspecialchars($_GET['msg']);
 }
 
@@ -158,7 +158,186 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
     if ($type && $subject && $comment) {
         $stmt = $pdo->prepare('INSERT INTO feedbk (feed_type, feed_sub, feed_comm) VALUES (?, ?, ?)');
         $stmt->execute([$type, $subject, $comment]);
-        // Optionally, set a success message or redirect
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Feedback submitted successfully.') . '&action=feedback#feedbackSection');
+        exit();
+    }
+}
+
+// Handle Delete Lost and Found Item
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_item'])) {
+    $deleteId = (int) ($_POST['item_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM lst_fnd WHERE lst_id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Item deleted successfully.') . '&action=lostfound#viewItemsSection');
+        exit();
+    }
+}
+
+// Handle Delete Feedback
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_feedback'])) {
+    $deleteId = (int) ($_POST['feedback_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM feedbk WHERE feed_id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Feedback deleted successfully.') . '&action=feedback#feedbackSection');
+        exit();
+    }
+}
+
+// Handle Create Payment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_payment'])) {
+    $payname = trim($_POST['PaymentName'] ?? '');
+    $amount = trim($_POST['Amount'] ?? '');
+    $pay_startdate = $_POST['startDate'] ?? '';
+    $pay_enddate = $_POST['endDate'] ?? '';
+    $pay_description = trim($_POST['eventDescription'] ?? '');
+
+    // Validate input
+    if ($payname === '') {
+        $errors[] = 'Payment Name is required.';
+    }
+    if ($amount === '') {
+        $errors[] = 'Amount is required.';
+    }
+    if (!$pay_startdate) {
+        $errors[] = 'Start Date is required.';
+    }
+    if (!$pay_enddate) {
+        $errors[] = 'End Date is required.';
+    }
+    if ($pay_startdate && $pay_enddate && strtotime($pay_enddate) < strtotime($pay_startdate)) {
+        $errors[] = 'End Date cannot be before Start Date.';
+    }
+
+    // Create if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('INSERT INTO pay (payname, amount, pay_startdate, pay_enddate, pay_description) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$payname, $amount, $pay_startdate, $pay_enddate, $pay_description]);
+        $successMessage = 'Payment created successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=payment#viewPaymentsSection');
+        exit();
+    }
+}
+
+// Handle Update Payment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_payment'])) {
+    $pay_id = (int) ($_POST['pay_id'] ?? 0);
+    $payname = trim($_POST['PaymentName'] ?? '');
+    $amount = trim($_POST['Amount'] ?? '');
+    $pay_startdate = $_POST['startDate'] ?? '';
+    $pay_enddate = $_POST['endDate'] ?? '';
+    $pay_description = trim($_POST['eventDescription'] ?? '');
+
+    // Validate input
+    if ($payname === '') {
+        $errors[] = 'Payment Name is required.';
+    }
+    if ($amount === '') {
+        $errors[] = 'Amount is required.';
+    }
+    if (!$pay_startdate) {
+        $errors[] = 'Start Date is required.';
+    }
+    if (!$pay_enddate) {
+        $errors[] = 'End Date is required.';
+    }
+    if ($pay_startdate && $pay_enddate && strtotime($pay_enddate) < strtotime($pay_startdate)) {
+        $errors[] = 'End Date cannot be before Start Date.';
+    }
+
+    // Update if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('UPDATE pay SET payname = ?, amount = ?, pay_startdate = ?, pay_enddate = ?, pay_description = ? WHERE pay_id = ?');
+        $stmt->execute([$payname, $amount, $pay_startdate, $pay_enddate, $pay_description, $pay_id]);
+        $successMessage = 'Payment updated successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=payment#viewPaymentsSection');
+        exit();
+    }
+}
+
+// Handle Delete Payment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_payment'])) {
+    $deleteId = (int) ($_POST['pay_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM pay WHERE pay_id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Payment deleted successfully.') . '&action=payment#viewPaymentsSection');
+        exit();
+    }
+}
+
+// Handle Create Event
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_event'])) {
+    $eventname = trim($_POST['eventName'] ?? '');
+    $startdate = $_POST['startDate'] ?? '';
+    $enddate = $_POST['endDate'] ?? '';
+    $description = trim($_POST['eventDescription'] ?? '');
+
+    // Validate input
+    if ($eventname === '') {
+        $errors[] = 'Event Name is required.';
+    }
+    if (!$startdate) {
+        $errors[] = 'Start Date is required.';
+    }
+    if (!$enddate) {
+        $errors[] = 'End Date is required.';
+    }
+    if ($startdate && $enddate && strtotime($enddate) < strtotime($startdate)) {
+        $errors[] = 'End Date cannot be before Start Date.';
+    }
+
+    // Create if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('INSERT INTO events (eventname, startdate, enddate, description) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$eventname, $startdate, $enddate, $description]);
+        $successMessage = 'Event created successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=event#viewEventsSection');
+        exit();
+    }
+}
+
+// Handle Update Event
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_event'])) {
+    $event_id = (int) ($_POST['event_id'] ?? 0);
+    $eventname = trim($_POST['eventName'] ?? '');
+    $startdate = $_POST['startDate'] ?? '';
+    $enddate = $_POST['endDate'] ?? '';
+    $description = trim($_POST['eventDescription'] ?? '');
+
+    // Validate input
+    if ($eventname === '') {
+        $errors[] = 'Event Name is required.';
+    }
+    if (!$startdate) {
+        $errors[] = 'Start Date is required.';
+    }
+    if (!$enddate) {
+        $errors[] = 'End Date is required.';
+    }
+    if ($startdate && $enddate && strtotime($enddate) < strtotime($startdate)) {
+        $errors[] = 'End Date cannot be before Start Date.';
+    }
+
+    // Update if no errors
+    if (empty($errors)) {
+        $stmt = $pdo->prepare('UPDATE events SET eventname = ?, startdate = ?, enddate = ?, description = ? WHERE id = ?');
+        $stmt->execute([$eventname, $startdate, $enddate, $description, $event_id]);
+        $successMessage = 'Event updated successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=event#viewEventsSection');
+        exit();
+    }
+}
+
+// Handle Delete Event
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
+    $deleteId = (int) ($_POST['event_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Event deleted successfully.') . '&action=event#viewEventsSection');
+        exit();
     }
 }
 ?>
