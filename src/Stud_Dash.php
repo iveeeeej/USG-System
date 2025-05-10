@@ -52,11 +52,15 @@ try {
 // Handle Create Attendance
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance'])) {
     $name     = trim($_POST['attendeeName'] ?? '');
+    $date     = $_POST['attDate'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
     // Validate input
     if ($name === '') {
         $errors[] = 'Attendee Name is required.';
+    }
+    if ($date <= 0) {
+        $errors[] = 'Date is required.';
     }
     if ($event_id <= 0) {
         $errors[] = 'Valid Event is required.';
@@ -64,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
 
     // Create if no errors
     if (empty($errors)) {
-        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$name, $date, $time, $event_id]);
+        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, event_id) VALUES (?, ?, ?)');
+        $stmt->execute([$name, $date, $event_id]);
         $successMessage = 'Attendance recorded successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#recordAttendanceForm');
         exit();
@@ -127,6 +131,14 @@ foreach ($events as $event) {
 // Check for success message from redirect
 if (isset($_GET['msg'])) {
     $successMessage = htmlspecialchars($_GET['msg']);
+}
+
+$editAttendance = null;
+if (isset($_GET['edit_att_id'])) {
+    $editAttId = (int) $_GET['edit_att_id'];
+    $stmt      = $pdo->prepare('SELECT * FROM attendance WHERE id = ?');
+    $stmt->execute([$editAttId]);
+    $editAttendance = $stmt->fetch();
 }
 ?>
 
@@ -396,8 +408,7 @@ if (isset($_GET['msg'])) {
                                         </div>
                                     </div>
                                     <p class="card-text text-muted small mt-2" id="upcomingEventsCount">
-                                        <?= $upcomingCount ?>
-                                        upcoming this week
+                                        Happening Now
                                     </p>
                                 </div>
                             </div>
@@ -411,14 +422,14 @@ if (isset($_GET['msg'])) {
                                         <div>
                                             <h5 class="card-title">Attendance</h5>
                                             <h2 class="mb-0">
-                                                <?= count($attendances) ?>
+                                                &nbsp
                                             </h2>
                                         </div>
                                         <div class="card-icon" aria-hidden="true">
                                             <i class="bi bi-person-check"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total attendance records</p>
+                                    <p class="card-text text-muted small mt-2">Check In</p>
                                 </div>
                             </div>
                         </div>
@@ -438,7 +449,7 @@ if (isset($_GET['msg'])) {
                                             <i class="bi bi-cash-coin"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total payment records</p>
+                                    <p class="card-text text-muted small mt-2">View Payments</p>
                                 </div>
                             </div>
                         </div>
@@ -458,7 +469,7 @@ if (isset($_GET['msg'])) {
                                             <i class="bi bi-question-diamond"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total items recorded</p>
+                                    <p class="card-text text-muted small mt-2">View Lost Items</p>
                                 </div>
                             </div>
                         </div>
@@ -483,14 +494,14 @@ if (isset($_GET['msg'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Events</h5>
+                                    <h5 class="card-title mb-0">Events</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover" id="eventsTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Event Name</th>
                                                     <th scope="col">Start Date</th>
                                                     <th scope="col">End Date</th>
@@ -529,19 +540,31 @@ if (isset($_GET['msg'])) {
                 </section>
 
                 <!-- Record Attendance Section -->
-                <section id="recordAttendanceForm" class="section-container d-none">
+                <section id="recordAttendanceForm" class="section-container d-none" aria-label="Record Attendance Section">
                     <div class="row justify-content-center">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        Attendance
+                                        <?= $editAttendance ? 'Edit Attendance' : 'Record Attendance' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
                                     <form id="recordAttendanceForm" method="post" novalidate>
+                                        <input type="hidden" name="<?= $editAttendance ? 'update_attendance' : 'create_attendance' ?>" value="1" />
+                                        <?php if ($editAttendance): ?>
+                                            <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
+                                        <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="attEvent" class="form-label">Event*</label>
+                                            <label for="attendeeName" class="form-label">Attendee Name</label>
+                                            <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="attDate" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="attEvent" class="form-label">Event</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
                                                 <option value="">Select Event</option>
                                                 <?php foreach ($events as $event): ?>
@@ -552,10 +575,9 @@ if (isset($_GET['msg'])) {
                                             </select>
                                         </div>
                                         <div class="text-end attn-btn">
-                                            <button type="button" class="btn btn-success me-2 mt-3 mt-md-0 fs-5" id="cancelRecordAttendanceBtn">
-                                                <i class="bi bi-check-circle me-2"></i>Check In
+                                            <button type="submit" class="btn btn-success me-2 mt-3 mt-md-0 fs-5">
+                                                <?= $editAttendance ? 'Check In' : 'Check In' ?>
                                             </button>
-                                            
                                         </div>
                                     </form>
                                 </div>
@@ -610,8 +632,6 @@ if (isset($_GET['msg'])) {
                 </section>
 
                 <!-- Lost and Found Sections -->
-
-                <!-- View Items Section -->
                 <section id="viewItemsSection" class="section-container d-none">
                     <div class="row">
                         <div class="col-12">
@@ -624,14 +644,13 @@ if (isset($_GET['msg'])) {
                                         <table class="table table-striped table-hover" id="lostAndFoundTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Image</th>
                                                     <th scope="col">Item Name</th>
                                                     <th scope="col">Category</th>
                                                     <th scope="col">Date Found</th>
                                                     <th scope="col">Location</th>
                                                     <th scope="col">Status</th>
-                                                    <th scope="col" style="min-width: 110px">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -654,17 +673,6 @@ if (isset($_GET['msg'])) {
                                                                 <span class="badge bg-<?= htmlspecialchars($item['status']) === 'Claimed' ? 'success' : 'warning' ?>">
                                                                     <?= htmlspecialchars($item['status']) ?>
                                                                 </span>
-                                                            </td>
-                                                            <td>
-                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-outline-secondary" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
-                                                                    <i class="bi bi-pencil"></i>
-                                                                </a>
-                                                                <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this item?');" aria-label="Delete Item <?= htmlspecialchars($item['lst_name']) ?>">
-                                                                    <input type="hidden" name="item_id" value="<?= $item['lst_id'] ?>" />
-                                                                    <button type="submit" name="delete_item" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
                                                             </td>
                                                         </tr>
                                                     <?php endforeach; ?>

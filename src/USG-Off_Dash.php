@@ -799,8 +799,7 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
                                     </div>
                                     <p class="card-text text-muted small mt-2" id="upcomingEventsCount">
-                                        <?= $upcomingCount ?>
-                                        upcoming this week
+                                        Total Events Happening Now
                                     </p>
                                 </div>
                             </div>
@@ -820,7 +819,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <i class="bi bi-person-check"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total attendance records</p>
+                                    <p class="card-text text-muted small mt-2">Total Attendances Recorded</p>
                                 </div>
                             </div>
                         </div>
@@ -839,7 +838,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <i class="bi bi-cash-coin"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total payment records</p>
+                                    <p class="card-text text-muted small mt-2">Total Payments Recorded</p>
                                 </div>
                             </div>
                         </div>
@@ -858,7 +857,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <i class="bi bi-question-diamond"></i>
                                         </div>
                                     </div>
-                                    <p class="card-text text-muted small mt-2">Total items recorded</p>
+                                    <p class="card-text text-muted small mt-2">Total Lost Items Recorded</p>
                                 </div>
                             </div>
                         </div>
@@ -901,7 +900,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editEvent ? 'Edit Event' : 'Create New Event' ?>
+                                        <?= $editEvent ? 'Edit Event' : 'New Event' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -911,15 +910,15 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="event_id" value="<?= $editEvent['id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="eventName" class="form-label">Event Name*</label>
+                                            <label for="eventName" class="form-label">Event Name</label>
                                             <input type="text" class="form-control" id="eventName" name="eventName" required value="<?= htmlspecialchars($_POST['eventName'] ?? $editEvent['eventname'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date*</label>
+                                            <label for="startDate" class="form-label">Start Date</label>
                                             <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['startdate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date*</label>
+                                            <label for="endDate" class="form-label">End Date</label>
                                             <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['enddate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
@@ -947,14 +946,14 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Events</h5>
+                                    <h5 class="card-title mb-0">Event Records</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover" id="eventsTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Event Name</th>
                                                     <th scope="col">Start Date</th>
                                                     <th scope="col">End Date</th>
@@ -1005,7 +1004,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editAttendance ? 'Edit Attendance' : 'Record New Attendance' ?>
+                                        <?= $editAttendance ? 'Edit Attendance' : 'Record Attendance' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -1015,19 +1014,19 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="attendeeName" class="form-label">Attendee Name*</label>
+                                            <label for="attendeeName" class="form-label">Attendee Name</label>
                                             <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attDate" class="form-label">Attendance Date*</label>
+                                            <label for="attDate" class="form-label">Date</label>
                                             <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attTime" class="form-label">Attendance Time*</label>
+                                            <label for="attTime" class="form-label">Time</label>
                                             <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attEvent" class="form-label">Event*</label>
+                                            <label for="attEvent" class="form-label">Event</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
                                                 <option value="">Select Event</option>
                                                 <?php foreach ($events as $event): ?>
@@ -1058,17 +1057,17 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Attendances</h5>
+                                    <h5 class="card-title mb-0">Attendance Records</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover" id="attendanceTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Attendee Name</th>
-                                                    <th scope="col">Attendance Date</th>
-                                                    <th scope="col">Attendance Time</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Time</th>
                                                     <th scope="col">Event</th>
                                                     <th scope="col" style="min-width: 110px">Actions</th>
                                                 </tr>
@@ -1116,7 +1115,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editPayment ? 'Edit Payment' : 'Create New Payment' ?>
+                                        <?= $editPayment ? 'Edit Payment' : 'New Payment' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -1126,15 +1125,15 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="pay_id" value="<?= $editPayment['pay_id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="PaymentName" class="form-label">Payment Name*</label>
+                                            <label for="PaymentName" class="form-label">Payment Name</label>
                                             <input type="text" class="form-control" id="PaymentName" name="PaymentName" required value="<?= htmlspecialchars($_POST['PaymentName'] ?? $editPayment['payname'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date*</label>
+                                            <label for="startDate" class="form-label">Due Date</label>
                                             <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date*</label>
+                                            <label for="endDate" class="form-label">Cut-Off Date</label>
                                             <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_enddate'])) : '')) ?>" />
                                         </div>
 
@@ -1163,14 +1162,14 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Payments</h5>
+                                    <h5 class="card-title mb-0">Payment Records</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover" id="paymentsTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Payment Name</th>
                                                     <th scope="col">Start Date</th>
                                                     <th scope="col">End Date</th>
@@ -1221,7 +1220,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editItem ? 'Edit Item' : 'Add New Item' ?>
+                                        <?= $editItem ? 'Edit Item' : 'New Item' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -1231,11 +1230,11 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="item_id" value="<?= $editItem['lst_id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="itemName" class="form-label">Item Name*</label>
+                                            <label for="itemName" class="form-label">Item Name</label>
                                             <input type="text" class="form-control" id="itemName" name="itemName" required value="<?= htmlspecialchars($_POST['itemName'] ?? $editItem['lst_name'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="itemCategory" class="form-label">Category*</label>
+                                            <label for="itemCategory" class="form-label">Category</label>
                                             <select class="form-select" id="itemCategory" name="itemCategory" required>
                                                 <option value="">Select Category</option>
                                                 <option value="Electronics" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Electronics') ? 'selected' : '' ?>>Electronics</option>
@@ -1246,11 +1245,11 @@ if (isset($_GET['edit_item_id'])) {
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="dateFound" class="form-label">Date Found*</label>
+                                            <label for="dateFound" class="form-label">Date Found</label>
                                             <input type="date" class="form-control" id="dateFound" name="dateFound" required value="<?= htmlspecialchars($_POST['dateFound'] ?? ($editItem ? date('Y-m-d', strtotime($editItem['date_found'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="location" class="form-label">Location Found*</label>
+                                            <label for="location" class="form-label">Location Found</label>
                                             <input type="text" class="form-control" id="location" name="location" required value="<?= htmlspecialchars($_POST['location'] ?? $editItem['location'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
@@ -1287,14 +1286,14 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Lost and Found Items</h5>
+                                    <h5 class="card-title mb-0">Lost Item Records</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover" id="lostAndFoundTable">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">#</th>
+                                                    <th scope="col">No.</th>
                                                     <th scope="col">Image</th>
                                                     <th scope="col">Item Name</th>
                                                     <th scope="col">Category</th>
