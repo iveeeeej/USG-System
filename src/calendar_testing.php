@@ -52,11 +52,19 @@ try {
 // Handle Create Attendance
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance'])) {
     $name     = trim($_POST['attendeeName'] ?? '');
+    $date     = $_POST['attDate'] ?? '';
+    $time     = $_POST['attTime'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
     // Validate input
     if ($name === '') {
         $errors[] = 'Attendee Name is required.';
+    }
+    if (!$date) {
+        $errors[] = 'Attendance Date is required.';
+    }
+    if (!$time) {
+        $errors[] = 'Attendance Time is required.';
     }
     if ($event_id <= 0) {
         $errors[] = 'Valid Event is required.';
@@ -67,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
         $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$name, $date, $time, $event_id]);
         $successMessage = 'Attendance recorded successfully.';
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#recordAttendanceForm');
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
         exit();
     }
 }
@@ -314,7 +322,7 @@ if (isset($_GET['msg'])) {
 
                         <!-- Attendance Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="recordAttendanceForm">
+                            <a class="nav-link" href="#" data-section="recordAttendanceSection">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
                             </a>
@@ -330,10 +338,30 @@ if (isset($_GET['msg'])) {
 
                         <!-- Lost and Found Menu -->
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-section="viewItemsSection">
+                            <a class="nav-link" href="#" data-section="lostAndFoundSubMenu">
                                 <i class="bi bi-question-diamond me-2"></i>
                                 Lost and Found
+                                <i class="bi bi-chevron-down ms-2"></i>
                             </a>
+
+                            <!-- if removed, calendar won't work -->
+                            <div class="collapse" id="lostAndFoundSubMenu">
+                                <ul class="nav flex-column ps-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#" data-section="addItemSection" id="navAddItem">
+                                            <i class="bi bi-plus-circle me-2"></i>
+                                            Add Item
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#" data-section="viewItemsSection" id="navViewItems">
+                                            <i class="bi bi-eye me-2"></i>
+                                            Lost Item Log
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
                         </li>
 
                         <!-- Feedback -->
@@ -401,7 +429,7 @@ if (isset($_GET['msg'])) {
 
                         <!-- Attendace Home CardDashboard -->
                         <div class="col-md-6 col-lg-3">
-                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('recordAttendanceForm')">
+                            <div class="card" aria-label="Attendance" style="cursor: pointer;" onclick="showSection('viewAttendanceSection')">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
@@ -525,7 +553,7 @@ if (isset($_GET['msg'])) {
                 </section>
 
                 <!-- Record Attendance Section -->
-                <section id="recordAttendanceForm" class="section-container d-none">
+                <section id="recordAttendanceSection" class="section-container d-none">
                     <div class="row justify-content-center">
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
@@ -1105,6 +1133,21 @@ if (isset($_GET['msg'])) {
                 const targetSection = this.getAttribute('data-section');
                 showSection(targetSection);
             });
+        });
+
+
+        //Remove this for calendar to DISPLAY after removing lost and found subsections
+        // Handle Lost and Found navigation
+        document.getElementById('navAddItem').addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection('addItemSection');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        //Remove this for calendar to DISPLAY after removing lost and found subsections
+        document.getElementById('navViewItems').addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection('viewItemsSection');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         // Handle image preview
