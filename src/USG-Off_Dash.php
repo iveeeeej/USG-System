@@ -266,6 +266,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_item'])) {
     }
 }
 
+// Handle Delete Feedback
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_feedback'])) {
+    $deleteId = (int) ($_POST['feedback_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM feedbk WHERE feed_id = ?');
+        $stmt->execute([$deleteId]);
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#feedbackSection');
+        exit();
+    }
+}
+
 // Handle Update Lost and Found Item
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_item'])) {
     $updateId = (int) ($_POST['item_id'] ?? 0);
@@ -1360,89 +1371,58 @@ if (isset($_GET['edit_item_id'])) {
                                     <h5 class="card-title mb-0">Feedback Management</h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <!-- Feedback Form -->
-                                        <div class="col-md-6 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-header">
-                                                    <h5 class="card-title mb-0">Submit Feedback</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <form id="feedbackForm">
-                                                        <div class="mb-3">
-                                                            <label for="feedbackType" class="form-label">Feedback Type</label>
-                                                            <select class="form-select" id="feedbackType" name="feedbackType" required>
-                                                                <option value="">Select Type</option>
-                                                                <option value="suggestion">Suggestion</option>
-                                                                <option value="complaint">Complaint</option>
-                                                                <option value="praise">Praise</option>
-                                                                <option value="other">Other</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackTitle" class="form-label">Title</label>
-                                                            <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackDescription" class="form-label">Description</label>
-                                                            <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="feedbackPriority" class="form-label">Priority</label>
-                                                            <select class="form-select" id="feedbackPriority" name="feedbackPriority" required>
-                                                                <option value="low">Low</option>
-                                                                <option value="medium">Medium</option>
-                                                                <option value="high">High</option>
-                                                            </select>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-send me-2"></i>Submit Feedback
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Feedback List -->
-                                        <div class="col-md-6 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-header d-flex justify-content-between align-items-center">
-                                                    <h5 class="card-title mb-0">Recent Feedback</h5>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                            Filter
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#">All</a></li>
-                                                            <li><a class="dropdown-item" href="#">Suggestions</a></li>
-                                                            <li><a class="dropdown-item" href="#">Complaints</a></li>
-                                                            <li><a class="dropdown-item" href="#">Praise</a></li>
-                                                            <li><a class="dropdown-item" href="#">Other</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-hover">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Type</th>
-                                                                    <th>Title</th>
-                                                                    <th>Priority</th>
-                                                                    <th>Status</th>
-                                                                    <th>Actions</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td colspan="5" class="text-center">No feedback records found.</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="feedbackTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Feedback Type</th>
+                                                    <th scope="col">Subject</th>
+                                                    <th scope="col">Comment</th>
+                                                    <th scope="col" style="min-width: 110px">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                // Fetch feedback entries
+                                                try {
+                                                    $stmt = $pdo->query('SELECT * FROM feedbk ORDER BY feed_id DESC');
+                                                    $feedbacks = $stmt->fetchAll();
+                                                    
+                                                    if (!empty($feedbacks)): 
+                                                        foreach ($feedbacks as $index => $feedback): ?>
+                                                            <tr>
+                                                                <th scope="row"><?= $index + 1 ?></th>
+                                                                <td>
+                                                                    <span class="badge bg-<?= $feedback['feed_type'] === 'suggestion' ? 'info' : 
+                                                                        ($feedback['feed_type'] === 'complaint' ? 'danger' : 
+                                                                        ($feedback['feed_type'] === 'praise' ? 'success' : 'secondary')) ?>">
+                                                                        <?= ucfirst(htmlspecialchars($feedback['feed_type'])) ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($feedback['feed_sub']) ?></td>
+                                                                <td><?= htmlspecialchars($feedback['feed_comm']) ?></td>
+                                                                <td>
+                                                                    <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this feedback?');">
+                                                                        <input type="hidden" name="feedback_id" value="<?= $feedback['feed_id'] ?>" />
+                                                                        <button type="submit" name="delete_feedback" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                                            <i class="bi bi-trash"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No feedback entries found.</td>
+                                                        </tr>
+                                                    <?php endif;
+                                                } catch (\PDOException $e) {
+                                                    echo '<tr><td colspan="5" class="text-center text-danger">Error loading feedback: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

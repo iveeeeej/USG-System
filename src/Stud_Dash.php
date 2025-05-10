@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start(); // Add session start at the beginning
 
 // Check if user is logged in
@@ -139,6 +143,19 @@ if (isset($_GET['edit_att_id'])) {
     $stmt      = $pdo->prepare('SELECT * FROM attendance WHERE id = ?');
     $stmt->execute([$editAttId]);
     $editAttendance = $stmt->fetch();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
+    $type = $_POST['feedbackType'] ?? '';
+    $subject = $_POST['feedbackTitle'] ?? '';
+    $comment = $_POST['feedbackDescription'] ?? '';
+
+    // Validate input
+    if ($type && $subject && $comment) {
+        $stmt = $pdo->prepare('INSERT INTO feedbk (feed_type, feed_sub, feed_comm) VALUES (?, ?, ?)');
+        $stmt->execute([$type, $subject, $comment]);
+        // Optionally, set a success message or redirect
+    }
 }
 ?>
 
@@ -707,7 +724,8 @@ if (isset($_GET['edit_att_id'])) {
                                                     <h5 class="card-title mb-0">Submit Feedback</h5>
                                                 </div>
                                                 <div class="card-body">
-                                                    <form id="feedbackForm">
+                                                    <form id="feedbackForm" method="post" action="">
+                                                        <input type="hidden" name="submit_feedback" value="1">
                                                         <div class="mb-3">
                                                             <label for="feedbackType" class="form-label">Feedback Type</label>
                                                             <select class="form-select" id="feedbackType" name="feedbackType" required>
@@ -719,216 +737,15 @@ if (isset($_GET['edit_att_id'])) {
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="feedbackTitle" class="form-label">Title</label>
+                                                            <label for="feedbackTitle" class="form-label">Subject</label>
                                                             <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="feedbackDescription" class="form-label">Description</label>
+                                                            <label for="feedbackDescription" class="form-label">Comment</label>
                                                             <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">
                                                             <i class="bi bi-send me-2"></i>Submit Feedback
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Generate Report Section -->
-                <section id="generateReportSection" class="section-container d-none">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card mt-4 mb-4">
-                                <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Generate Reports</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Events Report -->
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Events Report</h5>
-                                                    <p class="card-text">Generate a report of all events and their attendance.</p>
-                                                    <form method="post" action="generate_report.php">
-                                                        <input type="hidden" name="report_type" value="events">
-                                                        <div class="mb-3">
-                                                            <label for="eventDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="eventDateRange" name="date_range" onchange="toggleCustomDates(this, 'eventCustomDates')">
-                                                                <option value="week">Last Week</option>
-                                                                <option value="month">Last Month</option>
-                                                                <option value="year">Last Year</option>
-                                                                <option value="custom">Custom Range</option>
-                                                            </select>
-                                                        </div>
-                                                        <div id="eventCustomDates" class="mb-3 d-none">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <label for="eventStartDate" class="form-label">Start Date</label>
-                                                                    <input type="date" class="form-control" id="eventStartDate" name="start_date">
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <label for="eventEndDate" class="form-label">End Date</label>
-                                                                    <input type="date" class="form-control" id="eventEndDate" name="end_date">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-download me-2"></i>Download Report
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Attendance Report -->
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Attendance Report</h5>
-                                                    <p class="card-text">Generate a report of attendance records for all events.</p>
-                                                    <form method="post" action="generate_report.php">
-                                                        <input type="hidden" name="report_type" value="attendance">
-                                                        <div class="mb-3">
-                                                            <label for="attendanceDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="attendanceDateRange" name="date_range" onchange="toggleCustomDates(this, 'attendanceCustomDates')">
-                                                                <option value="week">Last Week</option>
-                                                                <option value="month">Last Month</option>
-                                                                <option value="year">Last Year</option>
-                                                                <option value="custom">Custom Range</option>
-                                                            </select>
-                                                        </div>
-                                                        <div id="attendanceCustomDates" class="mb-3 d-none">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <label for="attendanceStartDate" class="form-label">Start Date</label>
-                                                                    <input type="date" class="form-control" id="attendanceStartDate" name="start_date">
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <label for="attendanceEndDate" class="form-label">End Date</label>
-                                                                    <input type="date" class="form-control" id="attendanceEndDate" name="end_date">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-download me-2"></i>Download Report
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Payment Report -->
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Payment Report</h5>
-                                                    <p class="card-text">Generate a report of all payment records.</p>
-                                                    <form method="post" action="generate_report.php">
-                                                        <input type="hidden" name="report_type" value="payments">
-                                                        <div class="mb-3">
-                                                            <label for="paymentDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="paymentDateRange" name="date_range" onchange="toggleCustomDates(this, 'paymentCustomDates')">
-                                                                <option value="week">Last Week</option>
-                                                                <option value="month">Last Month</option>
-                                                                <option value="year">Last Year</option>
-                                                                <option value="custom">Custom Range</option>
-                                                            </select>
-                                                        </div>
-                                                        <div id="paymentCustomDates" class="mb-3 d-none">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <label for="paymentStartDate" class="form-label">Start Date</label>
-                                                                    <input type="date" class="form-control" id="paymentStartDate" name="start_date">
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <label for="paymentEndDate" class="form-label">End Date</label>
-                                                                    <input type="date" class="form-control" id="paymentEndDate" name="end_date">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-download me-2"></i>Download Report
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Lost and Found Report -->
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Lost and Found Report</h5>
-                                                    <p class="card-text">Generate a report of all lost and found items.</p>
-                                                    <form method="post" action="generate_report.php">
-                                                        <input type="hidden" name="report_type" value="lost_and_found">
-                                                        <div class="mb-3">
-                                                            <label for="lostFoundDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="lostFoundDateRange" name="date_range" onchange="toggleCustomDates(this, 'lostFoundCustomDates')">
-                                                                <option value="week">Last Week</option>
-                                                                <option value="month">Last Month</option>
-                                                                <option value="year">Last Year</option>
-                                                                <option value="custom">Custom Range</option>
-                                                            </select>
-                                                        </div>
-                                                        <div id="lostFoundCustomDates" class="mb-3 d-none">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <label for="lostFoundStartDate" class="form-label">Start Date</label>
-                                                                    <input type="date" class="form-control" id="lostFoundStartDate" name="start_date">
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <label for="lostFoundEndDate" class="form-label">End Date</label>
-                                                                    <input type="date" class="form-control" id="lostFoundEndDate" name="end_date">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-download me-2"></i>Download Report
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Feedback Report -->
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Feedback Report</h5>
-                                                    <p class="card-text">Generate a report of all feedback records.</p>
-                                                    <form method="post" action="generate_report.php">
-                                                        <input type="hidden" name="report_type" value="feedback">
-                                                        <div class="mb-3">
-                                                            <label for="feedbackDateRange" class="form-label">Date Range</label>
-                                                            <select class="form-select" id="feedbackDateRange" name="date_range" onchange="toggleCustomDates(this, 'feedbackCustomDates')">
-                                                                <option value="week">Last Week</option>
-                                                                <option value="month">Last Month</option>
-                                                                <option value="year">Last Year</option>
-                                                                <option value="custom">Custom Range</option>
-                                                            </select>
-                                                        </div>
-                                                        <div id="feedbackCustomDates" class="mb-3 d-none">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <label for="feedbackStartDate" class="form-label">Start Date</label>
-                                                                    <input type="date" class="form-control" id="feedbackStartDate" name="start_date">
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <label for="feedbackEndDate" class="form-label">End Date</label>
-                                                                    <input type="date" class="form-control" id="feedbackEndDate" name="end_date">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="bi bi-download me-2"></i>Download Report
                                                         </button>
                                                     </form>
                                                 </div>
