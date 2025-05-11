@@ -1364,15 +1364,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                 if (!feedbackTitle) {
                     showError('feedbackTitle', 'Subject is required');
                     hasError = true;
-                } else if (feedbackTitle.length < 3) {
-                    showError('feedbackTitle', 'Subject must be at least 3 characters long');
-                    hasError = true;
                 }
                 if (!feedbackDescription) {
                     showError('feedbackDescription', 'Comment is required');
-                    hasError = true;
-                } else if (feedbackDescription.length < 10) {
-                    showError('feedbackDescription', 'Comment must be at least 10 characters long');
                     hasError = true;
                 }
                 
