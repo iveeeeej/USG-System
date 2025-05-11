@@ -185,9 +185,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
     $time     = $_POST['attTime'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
-    $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$name, $date, $time, $event_id]);
-    $successMessage = 'Attendance recorded successfully.';
     // Validate input
     if ($name === '') {
         $errors[] = 'Attendee Name is required';
@@ -1271,7 +1268,7 @@ if (isset($_GET['edit_item_id'])) {
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
                                                     <tr>
-                                                        <td colspan="6" class="text-center">No payment records found.</td>
+                                                        <td colspan="7" class="text-center">No payment records found.</td>
                                                     </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -1859,6 +1856,24 @@ if (isset($_GET['edit_item_id'])) {
                 toggle: false
             });
         });
+
+        // Set initial state of collapse elements based on URL hash
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            // If we're navigating to a specific section, collapse all menus except the one containing the target
+            collapseList.forEach(collapse => {
+                const collapseId = collapse._element.id;
+                const targetSection = document.querySelector(`[data-section="${hash}"]`);
+                if (targetSection && !collapse._element.contains(targetSection)) {
+                    collapse.hide();
+                }
+            });
+        } else {
+            // If no hash, collapse all menus except dashboard
+            collapseList.forEach(collapse => {
+                collapse.hide();
+            });
+        }
 
         // Handle Lost and Found navigation
         document.getElementById('navAddItem').addEventListener('click', function(e) {
