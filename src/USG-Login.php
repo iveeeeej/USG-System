@@ -1,62 +1,3 @@
-<?php
-session_start();
-require_once 'db_connection.php'; // Ensure this function throws exceptions on failure
-
-$login_error = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $user_id = $_POST['acc_id'];
-    $acc_pass = $_POST['acc_pass'];
-
-    try {
-        $con = getDatabaseConnection();
-
-        // Debug: Log the input values
-        error_log("Login attempt - User ID: " . $user_id . ", Password: " . $acc_pass);
-
-        // Check if user exists in user_prof and use user_id as password
-        $stmt = $con->prepare("SELECT u.user_id, u.user_fullname 
-                             FROM user_prof u
-                             WHERE u.user_id = ? AND u.user_id = ?");
-        $stmt->bind_param("ii", $user_id, $acc_pass);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        // Debug: Log the query result
-        error_log("Query result rows: " . $result->num_rows);
-
-        if ($result->num_rows === 1) {
-            $row = $result->fetch_assoc();
-            
-            // Debug: Log the retrieved data
-            error_log("Retrieved data - User ID: " . $row['user_id']);
-
-            $_SESSION['user_id'] = $row['user_id'];
-            $_SESSION['user_fullname'] = $row['user_fullname'];
-
-            // Route based on user ID
-            if ($row['user_id'] == '2023305122') {
-                header("Location: USG-Off_Dash.php");
-            } else {
-                header("Location: Stud_Dash.php");
-            }
-            exit();
-        } else {
-            $login_error = "ERROR: Incorrect Credentials.";
-        }
-
-        $stmt->close();
-        $con->close();
-    } catch (Exception $e) {
-        // Log the error message to a file
-        error_log("Database error: " . $e->getMessage());
-
-        // Display a generic error message to the user
-        $login_error = "An unexpected error occurred. Please try again later.";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,31 +105,26 @@ body{
                         <h5 class="welcome-txt">Welcome to UNIVERSITY OF STUDENT GOVERNMENT</h5>
                     </div>
 
-                    <form action="USG-Login.php" method="POST">
-
-                        <div class="d-flex align-items-center rounded-2 mb-3 error-message <?php echo !empty($login_error) ? 'visible' : ''; ?>">
-                            <div class="error-msg"><?php echo htmlspecialchars($login_error); ?></div>
+                    <form id="loginForm" action="usg_login_verify.php" method="POST">
+                        <div class="input-group mb-3">
+                            <input type="text" id="userIdInput" name="userId" class="form-control form-control-lg bg-light fs-6" placeholder="User ID" required aria-label="User ID" />
                         </div>
 
                         <div class="input-group mb-3">
-                            <input type="text" name="acc_id" class="form-control form-control-lg bg-light fs-6" placeholder="ID Number">
-                        </div>
-
-                        <div class="input-group mb-3">
-                            <input type="password" name="acc_pass" class="form-control form-control-lg bg-light fs-6" placeholder="Password">
+                            <input type="password" id="passwordInput" name="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" required aria-label="Password" />
                         </div>
 
                         <div class="input-group mb-5 d-flex">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="formCheck">
-                                <label for="form-check" class="form-check-label text-light"><small>Remember Me</small></label>
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label for="rememberMe" class="form-check-label text-light"><small>Remember Me</small></label>
                             </div>
                         </div>
 
                         <div class="input-group mb-3">
-                            <button type="submit" class="btn btn-lg btn-primary w-100 fs-5 log-btn-txt">LOG IN</button>
+                            <button type="submit" id="loginBtn" class="btn btn-lg btn-primary w-100 fs-5 log-btn-txt">LOG IN</button>
                         </div>
-
+                        <div id="loginError" class="error-message text-center"></div>
                     </form>
 
                 </div>
@@ -196,6 +132,67 @@ body{
     
         </div>
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const userIdInput = document.getElementById('userIdInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const rememberMe = document.getElementById('rememberMe');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    // Check for remembered user ID
+    const rememberedUserId = localStorage.getItem('rememberedUserId');
+    if (rememberedUserId) {
+        userIdInput.value = rememberedUserId;
+        rememberMe.checked = true;
+    }
+
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        loginError.textContent = '';
+        loginError.classList.remove('visible');
+
+        // Remember me logic
+        if (rememberMe.checked) {
+            localStorage.setItem('rememberedUserId', userIdInput.value.trim());
+        } else {
+            localStorage.removeItem('rememberedUserId');
+        }
+
+        loginBtn.disabled = true;
+
+        fetch('usg_login_verify.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userIdInput.value.trim(),
+                password: passwordInput.value.trim()
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            loginBtn.disabled = false;
+            if (data.success) {
+                if (data.role === 'officer') {
+                    window.location.href = 'USG-Off_Dash.php';
+                } else {
+                    window.location.href = 'Stud_Dash.php';
+                }
+            } else {
+                loginError.textContent = data.message || 'Login failed. Please try again.';
+                loginError.classList.add('visible');
+            }
+        })
+        .catch(error => {
+            loginBtn.disabled = false;
+            loginError.textContent = 'A network error occurred. Please try again.';
+            loginError.classList.add('visible');
+        });
+    });
+});
+</script>
 
 </body>
 </html>

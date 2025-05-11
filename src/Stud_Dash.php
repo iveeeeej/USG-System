@@ -36,11 +36,11 @@ try {
     
     // Fetch user's full name if logged in
     if (isset($_SESSION['user_id'])) {
-        $stmt = $pdo->prepare('SELECT user_fullname FROM user_prof WHERE user_id = ?');
+        $stmt = $pdo->prepare('SELECT full_name FROM user_profile WHERE user_id = ?');
         $stmt->execute([$_SESSION['user_id']]);
         $result = $stmt->fetch();
         if ($result) {
-            $userFullname = $result['user_fullname'];
+            $userFullname = $result['full_name'];
             error_log('User fullname retrieved: ' . $userFullname); // Debug log
         } else {
             error_log('No user found with ID: ' . $_SESSION['user_id']); // Debug log
