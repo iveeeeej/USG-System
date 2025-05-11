@@ -24,14 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $con = getDatabaseConnection();
         
         // Get user profile data
-        $stmt = $con->prepare("SELECT user_fullname, user_mail, department, user_img FROM user_prof WHERE user_id = ?");
+        $stmt = $con->prepare("SELECT full_name, email, program_name, profile_picture FROM user_profile WHERE user_id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($row = $result->fetch_assoc()) {
             // Split fullname into first and last name
-            $name_parts = explode(' ', $row['user_fullname']);
+            $name_parts = explode(' ', $row['full_name']);
             $firstName = $name_parts[0];
             $lastName = isset($name_parts[1]) ? $name_parts[1] : '';
             
@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'data' => [
                     'firstName' => $firstName,
                     'lastName' => $lastName,
-                    'email' => $row['user_mail'],
-                    'department' => $row['department'],
+                    'email' => $row['email'],
+                    'program_name' => $row['program_name'],
                     'profileImage' => $row['user_img'] ? base64_encode($row['user_img']) : null
                 ]
             ]);
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $firstName = $_POST['firstName'] ?? '';
         $lastName = $_POST['lastName'] ?? '';
         $email = $_POST['email'] ?? '';
-        $department = $_POST['department'] ?? '';
+        $department = $_POST['program_name'] ?? '';
         $currentPassword = $_POST['currentPassword'] ?? '';
         $newPassword = $_POST['newPassword'] ?? '';
         
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $con->begin_transaction();
         
         // Update user profile
-        $stmt = $con->prepare("UPDATE user_prof SET user_fullname = ?, user_mail = ?, department = ? WHERE user_id = ?");
+        $stmt = $con->prepare("UPDATE user_profile SET full_name = ?, email = ?, program_name = ? WHERE user_id = ?");
         $stmt->bind_param("sssi", $fullname, $email, $department, $user_id);
         $stmt->execute();
         
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $imageData = file_get_contents($_FILES['profileImage']['tmp_name']);
             
-            $stmt = $con->prepare("UPDATE user_prof SET user_img = ? WHERE user_id = ?");
+            $stmt = $con->prepare("UPDATE user_profile SET profile_picture = ? WHERE user_id = ?");
             $stmt->bind_param("bi", $imageData, $user_id);
             $stmt->execute();
         }
@@ -102,15 +102,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle password change if provided
         if ($currentPassword && $newPassword) {
             // Verify current password
-            $stmt = $con->prepare("SELECT acc_pass FROM user_acc WHERE user_id = ?");
+            $stmt = $con->prepare("SELECT password FROM user WHERE user_id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
             if ($row = $result->fetch_assoc()) {
-                if ($row['acc_pass'] === $currentPassword) {
+                if ($row['password'] === $currentPassword) {
                     // Update password
-                    $stmt = $con->prepare("UPDATE user_acc SET acc_pass = ? WHERE user_id = ?");
+                    $stmt = $con->prepare("UPDATE user SET password = ? WHERE user_id = ?");
                     $stmt->bind_param("si", $newPassword, $user_id);
                     $stmt->execute();
                 } else {
@@ -123,14 +123,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $con->commit();
         
         // Get updated user data including the new image
-        $stmt = $con->prepare("SELECT user_fullname, user_mail, department, user_img FROM user_prof WHERE user_id = ?");
+        $stmt = $con->prepare("SELECT full_name, email, program_name, profile_picture FROM user_profile WHERE user_id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
         
         // Split fullname into first and last name
-        $name_parts = explode(' ', $row['user_fullname']);
+        $name_parts = explode(' ', $row['full_name']);
         $firstName = $name_parts[0];
         $lastName = isset($name_parts[1]) ? $name_parts[1] : '';
         
@@ -140,9 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'data' => [
                 'firstName' => $firstName,
                 'lastName' => $lastName,
-                'email' => $row['user_mail'],
-                'department' => $row['department'],
-                'profileImage' => $row['user_img'] ? base64_encode($row['user_img']) : null
+                'email' => $row['email'],
+                'program_name' => $row['program_name'],
+                'profileImage' => $row['profile_picture'] ? base64_encode($row['profile_picture']) : null
             ]
         ]);
         
