@@ -43,6 +43,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
     }
 }
 
+// Handle Clear All Events
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_events'])) {
+    $stmt = $pdo->prepare('DELETE FROM events');
+    $stmt->execute();
+    $successMessage = 'All events have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewEventsSection');
+    exit();
+}
+
+// Handle Clear All Attendance
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_attendance'])) {
+    $stmt = $pdo->prepare('DELETE FROM attendance');
+    $stmt->execute();
+    $successMessage = 'All attendance records have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
+    exit();
+}
+
+// Handle Clear All Payments
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_payments'])) {
+    $stmt = $pdo->prepare('DELETE FROM pay');
+    $stmt->execute();
+    $successMessage = 'All payment records have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewPaymentsSection');
+    exit();
+}
+
+// Handle Clear All Lost Items
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_items'])) {
+    $stmt = $pdo->prepare('DELETE FROM lst_fnd');
+    $stmt->execute();
+    $successMessage = 'All lost and found items have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewItemsSection');
+    exit();
+}
+
+// Handle Clear All Feedback
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_feedback'])) {
+    $stmt = $pdo->prepare('DELETE FROM feedbk');
+    $stmt->execute();
+    $successMessage = 'All feedback records have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#feedbackSection');
+    exit();
+}
+
 // Handle Update Event
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_event'])) {
     $updateId    = (int) ($_POST['event_id'] ?? 0);
@@ -83,28 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_event'])) {
     $enddate     = $_POST['endDate'] ?? '';
     $description = trim($_POST['eventDescription'] ?? '');
 
-    // Validate input
-    if ($eventname === '') {
-        $errors[] = 'Event Name is required.';
-    }
-    if (!$startdate) {
-        $errors[] = 'Start Date is required.';
-    }
-    if (!$enddate) {
-        $errors[] = 'End Date is required.';
-    }
-    if ($startdate && $enddate && strtotime($enddate) < strtotime($startdate)) {
-        $errors[] = 'End Date cannot be before Start Date.';
-    }
-
-    // Create if no errors
-    if (empty($errors)) {
         $stmt = $pdo->prepare('INSERT INTO events (eventname, startdate, enddate, description) VALUES (?, ?, ?, ?)');
         $stmt->execute([$eventname, $startdate, $enddate, $description]);
         $successMessage = 'Event created successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewEventsSection');
         exit();
-    }
 }
 
 // Handle Delete attendance request
@@ -157,18 +185,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
     $time     = $_POST['attTime'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
+    $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+    $stmt->execute([$name, $date, $time, $event_id]);
+    $successMessage = 'Attendance recorded successfully.';
     // Validate input
     if ($name === '') {
-        $errors[] = 'Attendee Name is required.';
+        $errors[] = 'Attendee Name is required';
     }
     if (!$date) {
-        $errors[] = 'Date is required.';
+        $errors[] = 'Date is required';
     }
     if (!$time) {
-        $errors[] = 'Time is required.';
+        $errors[] = 'Time is required';
     }
     if ($event_id <= 0) {
-        $errors[] = 'Valid Event is required.';
+        $errors[] = 'Valid Event is required';
     }
 
     // Create if no errors
@@ -662,7 +693,7 @@ if (isset($_GET['edit_item_id'])) {
                                 Events
                                 <i class="bi bi-chevron-down ms-2"></i>
                             </a>
-                            <div class="collapse show" id="eventsSubMenu">
+                            <div class="collapse" id="eventsSubMenu">
                                 <ul class="nav flex-column ps-3">
                                     <li class="nav-item">
                                         <a class="nav-link" href="#" data-section="createEventSection" id="navCreateEvent">
@@ -945,7 +976,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editEvent['description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelCreateEventBtn">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('viewEventsSection')">
                                                 Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
@@ -1010,6 +1041,13 @@ if (isset($_GET['edit_item_id'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all events? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_events" class="btn btn-danger">
+                                                Clear Events
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1056,7 +1094,7 @@ if (isset($_GET['edit_item_id'])) {
                                             </select>
                                         </div>
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelRecordAttendanceBtn">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('viewAttendanceSection')">
                                                 Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
@@ -1121,6 +1159,13 @@ if (isset($_GET['edit_item_id'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all attendance records? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_attendance" class="btn btn-danger">
+                                                Clear Records
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1152,12 +1197,12 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="text" class="form-control" id="Amount" name="Amount" required value="<?= htmlspecialchars($_POST['Amount'] ?? $editPayment['amount'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="startDate" class="form-label">Due Date</label>
-                                            <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
+                                            <label for="paymentDueDate" class="form-label">Due Date</label>
+                                            <input type="date" class="form-control" id="paymentDueDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="endDate" class="form-label">Cut-Off Date</label>
-                                            <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_enddate'])) : '')) ?>" />
+                                            <label for="paymentCutoffDate" class="form-label">Cut-Off Date</label>
+                                            <input type="date" class="form-control" id="paymentCutoffDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_enddate'])) : '')) ?>" />
                                         </div>
 
                                         <div class="mb-3">
@@ -1165,7 +1210,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editPayment['pay_description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelCreatePaymentBtn">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('viewPaymentsSection')">
                                                 Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
@@ -1232,6 +1277,13 @@ if (isset($_GET['edit_item_id'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all payment records? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_payments" class="btn btn-danger">
+                                                Clear Payment Records
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1291,7 +1343,7 @@ if (isset($_GET['edit_item_id'])) {
                                             <?php endif; ?>
                                         </div>
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" id="cancelAddItemBtn">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('viewItemsSection')">
                                                 Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
@@ -1370,6 +1422,13 @@ if (isset($_GET['edit_item_id'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all lost and found items? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_items" class="btn btn-danger">
+                                                Clear Lost Items
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1437,6 +1496,13 @@ if (isset($_GET['edit_item_id'])) {
                                                 ?>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all feedback records? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_feedback" class="btn btn-danger">
+                                                Clear Feedback Records
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -2000,6 +2066,312 @@ if (isset($_GET['edit_item_id'])) {
 
         // Call updateNavbarUserInfo when page loads
         updateNavbarUserInfo();
+
+        // Form validation functions
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-danger mt-1';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+            field.classList.add('is-invalid');
+            
+            // Scroll to the first error
+            if (!document.querySelector('.error-message')) {
+                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function clearErrors(field) {
+            field.classList.remove('is-invalid');
+            const errorMessage = field.parentNode.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        }
+
+        // Create Event Form Validation
+        const createEventForm = document.getElementById('createEventForm');
+        if (createEventForm) {
+            createEventForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const eventName = document.getElementById('eventName').value.trim();
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!eventName) {
+                    showError('eventName', 'Event Name is required');
+                    hasError = true;
+                }
+                if (!startDate) {
+                    showError('startDate', 'Start Date is required');
+                    hasError = true;
+                }
+                if (!endDate) {
+                    showError('endDate', 'End Date is required');
+                    hasError = true;
+                }
+                if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+                    showError('endDate', 'End Date cannot be before Start Date');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+
+            // Add date validation for Create Event
+            const eventStartDate = document.getElementById('startDate');
+            const eventEndDate = document.getElementById('endDate');
+
+            if (eventStartDate && eventEndDate) {
+                eventStartDate.addEventListener('change', function() {
+                    if (eventEndDate.value && new Date(eventEndDate.value) < new Date(this.value)) {
+                        showError('endDate', 'End Date cannot be before Start Date');
+                    } else {
+                        clearErrors(eventEndDate);
+                    }
+                });
+
+                eventEndDate.addEventListener('change', function() {
+                    if (eventStartDate.value && new Date(this.value) < new Date(eventStartDate.value)) {
+                        showError('endDate', 'End Date cannot be before Start Date');
+                    } else {
+                        clearErrors(this);
+                    }
+                });
+            }
+        }
+
+        // Record Attendance Form Validation
+        const recordAttendanceForm = document.getElementById('recordAttendanceForm');
+        if (recordAttendanceForm) {
+            recordAttendanceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const attendeeName = document.getElementById('attendeeName').value.trim();
+                const attDate = document.getElementById('attDate').value;
+                const attTime = document.getElementById('attTime').value;
+                const attEvent = document.getElementById('attEvent').value;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!attendeeName) {
+                    showError('attendeeName', 'Attendee Name is required');
+                    hasError = true;
+                }
+                if (!attDate) {
+                    showError('attDate', 'Date is required');
+                    hasError = true;
+                }
+                if (!attTime) {
+                    showError('attTime', 'Time is required');
+                    hasError = true;
+                }
+                if (!attEvent) {
+                    showError('attEvent', 'Event is required');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+        }
+
+        // Create Payment Form Validation
+        const createPaymentForm = document.getElementById('createPaymentForm');
+        if (createPaymentForm) {
+            createPaymentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const paymentName = document.getElementById('PaymentName').value.trim();
+                const amount = document.getElementById('Amount').value.trim();
+                const dueDate = document.getElementById('paymentDueDate').value;
+                const cutoffDate = document.getElementById('paymentCutoffDate').value;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!paymentName) {
+                    showError('PaymentName', 'Payment Name is required');
+                    hasError = true;
+                }
+                if (!amount) {
+                    showError('Amount', 'Amount is required');
+                    hasError = true;
+                } else if (isNaN(amount) || parseFloat(amount) <= 0) {
+                    showError('Amount', 'Please enter a valid amount');
+                    hasError = true;
+                }
+
+                // Date validation
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (!dueDate) {
+                    showError('paymentDueDate', 'Due Date is required');
+                    hasError = true;
+                } else {
+                    const dueDateObj = new Date(dueDate);
+                    dueDateObj.setHours(0, 0, 0, 0);
+                    if (dueDateObj < today) {
+                        showError('paymentDueDate', 'Due Date cannot be in the past');
+                        hasError = true;
+                    }
+                }
+
+                if (!cutoffDate) {
+                    showError('paymentCutoffDate', 'Cut-Off Date is required');
+                    hasError = true;
+                } else {
+                    const cutoffDateObj = new Date(cutoffDate);
+                    cutoffDateObj.setHours(0, 0, 0, 0);
+                    if (cutoffDateObj < today) {
+                        showError('paymentCutoffDate', 'Cut-Off Date cannot be in the past');
+                        hasError = true;
+                    }
+                }
+
+                if (dueDate && cutoffDate) {
+                    const dueDateObj = new Date(dueDate);
+                    const cutoffDateObj = new Date(cutoffDate);
+                    dueDateObj.setHours(0, 0, 0, 0);
+                    cutoffDateObj.setHours(0, 0, 0, 0);
+
+                    if (cutoffDateObj < dueDateObj) {
+                        showError('paymentCutoffDate', 'Cut-Off Date cannot be before Due Date');
+                        hasError = true;
+                    }
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+
+            // Add real-time date validation
+            const dueDateInput = document.getElementById('paymentDueDate');
+            const cutoffDateInput = document.getElementById('paymentCutoffDate');
+
+            if (dueDateInput && cutoffDateInput) {
+                // Set minimum date to today
+                const today = new Date().toISOString().split('T')[0];
+                dueDateInput.min = today;
+                cutoffDateInput.min = today;
+
+                // Update cutoff date minimum when due date changes
+                dueDateInput.addEventListener('change', function() {
+                    cutoffDateInput.min = this.value;
+                    if (cutoffDateInput.value && cutoffDateInput.value < this.value) {
+                        cutoffDateInput.value = this.value;
+                    }
+                });
+
+                // Validate cutoff date when it changes
+                cutoffDateInput.addEventListener('change', function() {
+                    if (dueDateInput.value && this.value < dueDateInput.value) {
+                        showError('paymentCutoffDate', 'Cut-Off Date cannot be before Due Date');
+                        this.value = dueDateInput.value;
+                    } else {
+                        clearErrors(this);
+                    }
+                });
+            }
+        }
+
+        // Add Item Form Validation
+        const addItemForm = document.getElementById('addItemForm');
+        if (addItemForm) {
+            addItemForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const itemName = document.getElementById('itemName').value.trim();
+                const itemCategory = document.getElementById('itemCategory').value;
+                const dateFound = document.getElementById('dateFound').value;
+                const location = document.getElementById('location').value.trim();
+                const itemImage = document.getElementById('itemImage');
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!itemName) {
+                    showError('itemName', 'Item Name is required');
+                    hasError = true;
+                }
+                if (!itemCategory) {
+                    showError('itemCategory', 'Category is required');
+                    hasError = true;
+                }
+                if (!dateFound) {
+                    showError('dateFound', 'Date Found is required');
+                    hasError = true;
+                }
+                if (!location) {
+                    showError('location', 'Location is required');
+                    hasError = true;
+                }
+                if (!itemImage.files.length && !itemImage.hasAttribute('data-has-image')) {
+                    showError('itemImage', 'Item image is required');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+        }
+
+        // Add input event listeners to all form fields
+        const formFields = [
+            'eventName', 'startDate', 'endDate',
+            'attendeeName', 'attDate', 'attTime', 'attEvent',
+            'PaymentName', 'Amount',
+            'itemName', 'itemCategory', 'dateFound', 'location', 'itemImage'
+        ];
+        
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', function() {
+                    clearErrors(this);
+                });
+            }
+        });
     });
 
     // Function to show/hide sections

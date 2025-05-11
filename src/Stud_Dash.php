@@ -55,31 +55,24 @@ try {
 
 // Handle Create Attendance
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance'])) {
-    $name     = trim($_POST['attendeeName'] ?? '');
-    $date     = $_POST['attDate'] ?? '';
-    $time     = $_POST['attTime'] ?? '';
+    $name = trim($_POST['attendeeName'] ?? '');
+    $date = $_POST['attDate'] ?? '';
+    $time = $_POST['attTime'] ?? '';
     $event_id = (int) ($_POST['attEvent'] ?? 0);
 
-    // Validate input
-    if ($name === '') {
-        $errors[] = 'Attendee Name is required.';
-    }
-    if ($date <= 0) {
-        $errors[] = 'Date is required.';
-    }
-    if (!$time) {
-        $errors[] = 'Time is required.';
-    }
-    if ($event_id <= 0) {
-        $errors[] = 'Valid Event is required.';
-    }
-
-    // Create if no errors
-    if (empty($errors)) {
+    // Verify event exists
+    $checkEvent = $pdo->prepare('SELECT id FROM events WHERE id = ?');
+    $checkEvent->execute([$event_id]);
+    if ($checkEvent->rowCount() > 0) {
+        // Create attendance record
         $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$name, $date, $time, $event_id]);
-        $successMessage = 'Attendance recorded successfully.';
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '&action=attendance#recordAttendanceForm');
+        $_SESSION['success_message'] = 'Attendance recorded successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?action=attendance#recordAttendanceForm');
+        exit();
+    } else {
+        $_SESSION['error_message'] = 'Invalid event selected.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?action=attendance#recordAttendanceForm');
         exit();
     }
 }
@@ -136,12 +129,12 @@ foreach ($events as $event) {
     }
 }
 
-// Check for success message from redirect
-if (isset($_GET['msg']) && isset($_GET['action'])) {
-    $successMessage = htmlspecialchars($_GET['msg']);
-} else {
-    $successMessage = ''; // Clear any existing success message if no action parameter
-}
+// Get messages from session
+$successMessage = $_SESSION['success_message'] ?? '';
+$errors = isset($_SESSION['error_message']) ? [$_SESSION['error_message']] : [];
+
+// Clear session messages
+unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 $editAttendance = null;
 if (isset($_GET['edit_att_id'])) {
@@ -151,6 +144,7 @@ if (isset($_GET['edit_att_id'])) {
     $editAttendance = $stmt->fetch();
 }
 
+// Handle Feedback Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
     $type = $_POST['feedbackType'] ?? '';
     $subject = $_POST['feedbackTitle'] ?? '';
@@ -160,7 +154,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
     if ($type && $subject && $comment) {
         $stmt = $pdo->prepare('INSERT INTO feedbk (feed_type, feed_sub, feed_comm) VALUES (?, ?, ?)');
         $stmt->execute([$type, $subject, $comment]);
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode('Feedback submitted successfully.') . '&action=feedback#feedbackSection');
+        $_SESSION['success_message'] = 'Feedback submitted successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?action=feedback#feedbackSection');
+        exit();
+    } else {
+        $_SESSION['error_message'] = 'Please fill in all required fields.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?action=feedback#feedbackSection');
         exit();
     }
 }
@@ -717,7 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                             <td><?= date('M d, Y', strtotime($event['enddate'])) ?></td>
                                                             <td><?= htmlspecialchars($event['description']) ?></td>
                                                             <td>
-                                                                <button onclick="showSection('recordAttendanceForm')" class="btn btn-sm btn-outline-secondary me-1">
+                                                                <button onclick="showSection('recordAttendanceForm')" class="btn btn-sm btn-success me-1">
                                                                     <i class="bi bi-check-circle"></i>
                                                                 </button>
                                                             </td>
@@ -748,7 +747,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <form id="recordAttendanceForm" method="post" novalidate>
+                                    <form id="attendanceForm" method="post" novalidate>
                                         <input type="hidden" name="<?= $editAttendance ? 'update_attendance' : 'create_attendance' ?>" value="1" />
                                         <?php if ($editAttendance): ?>
                                             <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
@@ -756,14 +755,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         <div class="mb-3">
                                             <label for="attendeeName" class="form-label">Attendee Name</label>
                                             <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
+                                            <div class="invalid-feedback" id="attendeeNameError"></div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="attDate" class="form-label">Date</label>
                                             <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
+                                            <div class="invalid-feedback" id="attDateError"></div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="attTime" class="form-label">Time</label>
                                             <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
+                                            <div class="invalid-feedback" id="attTimeError"></div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="attEvent" class="form-label">Event</label>
@@ -775,6 +777,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
+                                            <div class="invalid-feedback" id="attEventError"></div>
                                         </div>
                                         <div class="text-end">
                                             <button type="submit" class="btn btn-success me-2">
@@ -904,13 +907,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <!-- Feedback Form (now full width) -->
+                                        <!-- Feedback Form -->
                                         <div class="col-12">
-                                            <form id="feedbackForm" method="post" action="">
+                                            <form id="feedbackForm" method="post" action="" novalidate>
                                                 <input type="hidden" name="submit_feedback" value="1">
                                                 <div class="mb-3">
                                                     <label for="feedbackType" class="form-label">Feedback Type</label>
-                                                    <select class="form-select" id="feedbackType" name="feedbackType" required>
+                                                    <select class="form-select" id="feedbackType" name="feedbackType">
                                                         <option value="">Select Type</option>
                                                         <option value="suggestion">Suggestion</option>
                                                         <option value="complaint">Complaint</option>
@@ -920,11 +923,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="feedbackTitle" class="form-label">Subject</label>
-                                                    <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
+                                                    <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle">
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="feedbackDescription" class="form-label">Comment</label>
-                                                    <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4" required></textarea>
+                                                    <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4"></textarea>
                                                 </div>
                                                 <div class="text-end">
                                                     <button type="submit" class="btn btn-primary">
@@ -1271,6 +1274,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
 
         // Call updateNavbarUserInfo when page loads
         updateNavbarUserInfo();
+
+        // Form validation functions
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-danger mt-1';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+            field.classList.add('is-invalid');
+            
+            // Scroll to the first error
+            if (!document.querySelector('.error-message')) {
+                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function clearErrors(field) {
+            field.classList.remove('is-invalid');
+            const errorMessage = field.parentNode.querySelector('.error-message');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        }
+
+        // Attendance Form Validation
+        const attendanceForm = document.getElementById('attendanceForm');
+        if (attendanceForm) {
+            attendanceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const attendeeName = document.getElementById('attendeeName').value.trim();
+                const attDate = document.getElementById('attDate').value;
+                const attTime = document.getElementById('attTime').value;
+                const attEvent = document.getElementById('attEvent').value;
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!attendeeName) {
+                    showError('attendeeName', 'Attendee Name is required');
+                    hasError = true;
+                }
+                if (!attDate) {
+                    showError('attDate', 'Date is required');
+                    hasError = true;
+                }
+                if (!attTime) {
+                    showError('attTime', 'Time is required');
+                    hasError = true;
+                }
+                if (!attEvent) {
+                    showError('attEvent', 'Event is required');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+        }
+
+        // Feedback Form Validation
+        const feedbackForm = document.getElementById('feedbackForm');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const feedbackType = document.getElementById('feedbackType').value;
+                const feedbackTitle = document.getElementById('feedbackTitle').value.trim();
+                const feedbackDescription = document.getElementById('feedbackDescription').value.trim();
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!feedbackType) {
+                    showError('feedbackType', 'Please select a feedback type');
+                    hasError = true;
+                }
+                if (!feedbackTitle) {
+                    showError('feedbackTitle', 'Subject is required');
+                    hasError = true;
+                } else if (feedbackTitle.length < 3) {
+                    showError('feedbackTitle', 'Subject must be at least 3 characters long');
+                    hasError = true;
+                }
+                if (!feedbackDescription) {
+                    showError('feedbackDescription', 'Comment is required');
+                    hasError = true;
+                } else if (feedbackDescription.length < 10) {
+                    showError('feedbackDescription', 'Comment must be at least 10 characters long');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+
+            // Add input event listeners to clear errors on input
+            const feedbackFields = ['feedbackType', 'feedbackTitle', 'feedbackDescription'];
+            feedbackFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', function() {
+                        clearErrors(this);
+                    });
+                }
+            });
+        }
     });
 
     // Function to show/hide sections
@@ -1303,6 +1429,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             customDatesDiv.classList.add('d-none');
         }
     }
+
+    // Prevent form resubmission
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    // Clear form data after successful submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function() {
+                // Store the form data in sessionStorage
+                const formData = new FormData(this);
+                const formObject = {};
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
+                sessionStorage.setItem('formData', JSON.stringify(formObject));
+            });
+        });
+
+        // Clear form data from sessionStorage after page load
+        sessionStorage.removeItem('formData');
+    });
 </script>
 
 </body>
