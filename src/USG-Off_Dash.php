@@ -1981,8 +1981,8 @@ if (isset($_GET['edit_item_id'])) {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            document.getElementById('firstName').value = data.data.firstName;
-                            document.getElementById('email').value = data.data.email;
+                            document.getElementById('firstName').value = data.data.firstName || '';
+                            document.getElementById('email').value = data.data.email || '';
                             
                             if (data.data.profileImage) {
                                 const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
@@ -1991,13 +1991,10 @@ if (isset($_GET['edit_item_id'])) {
                                     adminLogoImg.src = imageData;
                                 }
                             }
-                        } else {
-                            alert('Error loading user data: ' + data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error loading user data');
                     });
             });
 
@@ -2034,12 +2031,14 @@ if (isset($_GET['edit_item_id'])) {
                         // Update navbar with new user info
                         const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
                         if (adminPanelText) {
-                            adminPanelText.textContent = data.data.fullName; /* ---------------------------- */
+                            adminPanelText.textContent = data.data.fullName;
                         }
                         // Clear password fields
                         document.getElementById('currentPassword').value = '';
                         document.getElementById('newPassword').value = '';
                         document.getElementById('confirmPassword').value = '';
+                        // Redirect to Home section
+                        showSection('dashboardSection');
                     } else {
                         alert('Error: ' + data.message);
                     }

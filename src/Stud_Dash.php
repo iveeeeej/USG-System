@@ -1161,8 +1161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            document.getElementById('firstName').value = data.data.firstName;
-                            document.getElementById('email').value = data.data.email;
+                            document.getElementById('firstName').value = data.data.firstName || '';
+                            document.getElementById('email').value = data.data.email || '';
                             
                             if (data.data.profileImage) {
                                 const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
@@ -1171,13 +1171,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                     adminLogoImg.src = imageData;
                                 }
                             }
-                        } else {
-                            alert('Error loading user data: ' + data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error loading user data');
                     });
             });
 
@@ -1214,12 +1211,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         // Update navbar with new user info
                         const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
                         if (adminPanelText) {
-                            adminPanelText.textContent = data.data.fullName; /* ---------------------------- */
+                            adminPanelText.textContent = data.data.fullName;
                         }
                         // Clear password fields
                         document.getElementById('currentPassword').value = '';
                         document.getElementById('newPassword').value = '';
                         document.getElementById('confirmPassword').value = '';
+                        // Redirect to Home section
+                        showSection('dashboardSection');
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -1245,7 +1244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         // Update admin panel text
                         const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
                         if (adminPanelText) {
-                            adminPanelText.textContent = data.data.firstName; /* ---------------------------- */
+                            adminPanelText.textContent = data.data.firstName;
                         }
                         
                         // Update admin logo

@@ -35,13 +35,21 @@ try {
             echo json_encode([
                 'success' => true,
                 'data' => [
-                    'firstName' => $userData['full_name'],
-                    'email' => $userData['email'],
-                    'profileImage' => $userData['profile_picture']
+                    'firstName' => $userData['full_name'] ?? '',
+                    'email' => $userData['email'] ?? '',
+                    'profileImage' => $userData['profile_picture'] ?? null
                 ]
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'User data not found']);
+            // If no user data found, return empty values
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'firstName' => '',
+                    'email' => '',
+                    'profileImage' => null
+                ]
+            ]);
         }
         exit();
     }
