@@ -1748,23 +1748,14 @@ if (isset($_GET['edit_item_id'])) {
 
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="firstName" class="form-label">First Name</label>
-                                                <input type="text" class="form-control" id="firstName" name="firstName" required>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="lastName" class="form-label">Last Name</label>
-                                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                                <label for="firstName" class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($userFullname) ?>" required>
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="email" name="email" required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="department" class="form-label">Department</label>
-                                            <input type="text" class="form-control" id="department" name="department" required>
                                         </div>
 
                                         <hr class="my-4">
@@ -1989,14 +1980,12 @@ if (isset($_GET['edit_item_id'])) {
         if (manageAccountForm) {
             // Load user data when the section is shown
             document.querySelector('[data-section="manageAccountSection"]').addEventListener('click', function() {
-                fetch('manage_account.php')
+                fetch('update_profile.php')
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             document.getElementById('firstName').value = data.data.firstName;
-                            document.getElementById('lastName').value = data.data.lastName;
                             document.getElementById('email').value = data.data.email;
-                            document.getElementById('department').value = data.data.department;
                             
                             if (data.data.profileImage) {
                                 const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
@@ -2018,7 +2007,7 @@ if (isset($_GET['edit_item_id'])) {
             manageAccountForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Validate password change
+                // Validate passwords match if changing password
                 const newPassword = document.getElementById('newPassword').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 
@@ -2026,12 +2015,18 @@ if (isset($_GET['edit_item_id'])) {
                     alert('New passwords do not match!');
                     return;
                 }
-
+                
                 // Create FormData object
                 const formData = new FormData(this);
-
+                
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+                
                 // Send form data to server
-                fetch('manage_account.php', {
+                fetch('update_profile.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -2039,25 +2034,15 @@ if (isset($_GET['edit_item_id'])) {
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
+                        // Update navbar with new user info
+                        const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
+                        if (adminPanelText) {
+                            adminPanelText.textContent = data.data.fullName;
+                        }
                         // Clear password fields
                         document.getElementById('currentPassword').value = '';
                         document.getElementById('newPassword').value = '';
                         document.getElementById('confirmPassword').value = '';
-                        
-                        // Update navbar with new user info
-                        const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
-                        if (adminPanelText) {
-                            adminPanelText.textContent = data.data.firstName + ' ' + data.data.lastName;
-                        }
-                        
-                        // Update both profile image and admin logo
-                        if (data.data.profileImage) {
-                            const imageData = 'data:image/jpeg;base64,' + data.data.profileImage;
-                            document.getElementById('profileImage').src = imageData;
-                            if (adminLogoImg) {
-                                adminLogoImg.src = imageData;
-                            }
-                        }
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -2065,20 +2050,25 @@ if (isset($_GET['edit_item_id'])) {
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Error updating profile');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 });
             });
         }
 
         // Function to update navbar user info
         function updateNavbarUserInfo() {
-            fetch('manage_account.php')
+            fetch('update_profile.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // Update admin panel text
                         const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
                         if (adminPanelText) {
-                            adminPanelText.textContent = data.data.firstName + ' ' + data.data.lastName;
+                            adminPanelText.textContent = data.data.firstName; /* ---------------------------- */
                         }
                         
                         // Update admin logo
