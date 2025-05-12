@@ -966,7 +966,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="mb-3">
                                                 <label for="firstName" class="form-label">Full Name</label>
                                                 <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($userFullname) ?>" required>
                                             </div>

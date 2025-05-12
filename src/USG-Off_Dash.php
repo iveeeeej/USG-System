@@ -1747,7 +1747,7 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-md-6 mb-3">
+                                            <div class="mb-3">
                                                 <label for="firstName" class="form-label">Full Name</label>
                                                 <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($userFullname) ?>" required>
                                             </div>
@@ -1913,9 +1913,6 @@ if (isset($_GET['edit_item_id'])) {
             });
         }
 
-        // Remove the default dashboard show
-        // showSection('dashboardSection');  // Remove this line if it exists
-
         // Initialize FullCalendar in the Home section
         var calendarEl = document.getElementById('calendar');
         if (calendarEl) {
@@ -2037,7 +2034,7 @@ if (isset($_GET['edit_item_id'])) {
                         // Update navbar with new user info
                         const adminPanelText = document.querySelector('.me-2.d-none.d-md-inline');
                         if (adminPanelText) {
-                            adminPanelText.textContent = data.data.fullName;
+                            adminPanelText.textContent = data.data.fullName; /* ---------------------------- */
                         }
                         // Clear password fields
                         document.getElementById('currentPassword').value = '';
