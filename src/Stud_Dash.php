@@ -691,7 +691,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Events</h5>
+                                    <h5 class="card-title mb-0">Event Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -717,7 +717,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                             <td><?= htmlspecialchars($event['description']) ?></td>
                                                             <td>
                                                                 <button onclick="showSection('recordAttendanceForm')" class="btn btn-sm btn-success me-1">
-                                                                    <i class="bi bi-check-circle"></i>
+                                                                    <i class="bi bi-check-circle me-2"></i> Check In
                                                                 </button>
                                                             </td>
                                                         </tr>
@@ -743,7 +743,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editAttendance ? 'Edit Attendance' : 'Record Attendance' ?>
+                                        <?= $editAttendance ? 'Edit Attendance' : 'Attendance' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -780,8 +780,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                             <div class="invalid-feedback" id="attEventError"></div>
                                         </div>
                                         <div class="text-end">
-                                            <button type="submit" class="btn btn-success me-2">
-                                                <?= $editAttendance ? 'Check In' : 'Check In' ?>
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('dashboardSection')">
+                                                <i class="bi bi-x-circle me-2"></i>Cancel
+                                            </button>
+                                            <button type="submit" class="btn btn-success"><span><i class="bi bi-check-circle me-2"></i></span>
+                                            <?= $editAttendance ? 'Check In' : 'Check In' ?>
                                             </button>
                                         </div>
                                     </form>
@@ -797,7 +800,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Payments</h5>
+                                    <h5 class="card-title mb-0">Payment Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -844,7 +847,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Lost and Found Items</h5>
+                                    <h5 class="card-title mb-0">Lost Item Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -903,7 +906,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Feedback Management</h5>
+                                    <h5 class="card-title mb-0">Feedback</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -930,6 +933,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                     <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4"></textarea>
                                                 </div>
                                                 <div class="text-end">
+                                                    <button type="button" class="btn btn-danger me-2" onclick="showSection('dashboardSection')">
+                                                        <i class="bi bi-x-circle me-2"></i>Cancel
+                                                    </button>
                                                     <button type="submit" class="btn btn-primary">
                                                         <i class="bi bi-send me-2"></i>Submit Feedback
                                                     </button>
@@ -996,6 +1002,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         </div>
 
                                         <div class="text-end">
+                                            <button type="button" class="btn btn-secondary me-2" onclick="showSection('dashboardSection')">
+                                                <i class="bi bi-x-circle me-2"></i>Cancel
+                                            </button>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="bi bi-save me-2"></i>Save Changes
                                             </button>

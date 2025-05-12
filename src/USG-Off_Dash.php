@@ -990,10 +990,10 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewEventsSection')">
-                                                Cancel
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editEvent ? 'Update Event' : 'Create Event' ?>
+                                            <button type="submit" class="btn btn-primary"><span><i class="bi bi-clipboard-check me-2"></i></span>
+                                                <?= $editEvent ? 'Update Event' : 'Add Event' ?>
                                             </button>
                                         </div>
                                     </form>
@@ -1009,7 +1009,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Event Records</h5>
+                                    <h5 class="card-title mb-0">Event Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -1057,7 +1057,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <div class="text-end mt-3">
                                         <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all events? This action cannot be undone.');">
                                             <button type="submit" name="clear_all_events" class="btn btn-danger">
-                                                Clear Events
+                                            <i class="bi bi-trash me-2"></i>Clear Records
                                             </button>
                                         </form>
                                     </div>
@@ -1074,7 +1074,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
                                     <h5 class="card-title mb-0">
-                                        <?= $editAttendance ? 'Edit Attendance' : 'Record Attendance' ?>
+                                        <?= $editAttendance ? 'Edit Attendance' : 'New Attendance' ?>
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -1108,10 +1108,10 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewAttendanceSection')">
-                                                Cancel
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editAttendance ? 'Update Attendance' : 'Record Attendance' ?>
+                                            <button type="submit" class="btn btn-primary"><span><i class="bi bi-clipboard-check me-2"></i></span>
+                                                <?= $editAttendance ? 'Update Attendance' : 'Add Attendance' ?>
                                             </button>
                                         </div>
                                     </form>
@@ -1127,7 +1127,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Attendance Records</h5>
+                                    <h5 class="card-title mb-0">Attendance Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -1175,7 +1175,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <div class="text-end mt-3">
                                         <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all attendance records? This action cannot be undone.');">
                                             <button type="submit" name="clear_all_attendance" class="btn btn-danger">
-                                                Clear Records
+                                            <i class="bi bi-trash me-2"></i>Clear Records
                                             </button>
                                         </form>
                                     </div>
@@ -1224,10 +1224,10 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewPaymentsSection')">
-                                                Cancel
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <?= $editPayment ? 'Update Payment' : 'Create Payment' ?>
+                                            <button type="submit" class="btn btn-primary"><span><i class="bi bi-clipboard-check me-2"></i></span>
+                                                <?= $editPayment ? 'Update Payment' : 'Add Payment' ?>
                                             </button>
                                         </div>
                                     </form>
@@ -1243,7 +1243,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Payment Records</h5>
+                                    <h5 class="card-title mb-0">Payment Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -1293,7 +1293,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <div class="text-end mt-3">
                                         <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all payment records? This action cannot be undone.');">
                                             <button type="submit" name="clear_all_payments" class="btn btn-danger">
-                                                Clear Payment Records
+                                            <i class="bi bi-trash me-2"></i>Clear Records
                                             </button>
                                         </form>
                                     </div>
@@ -1357,9 +1357,9 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewItemsSection')">
-                                                Cancel
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
-                                            <button type="submit" class="btn btn-primary">
+                                            <button type="submit" class="btn btn-primary"><span><i class="bi bi-clipboard-check me-2"></i></span>
                                                 <?= $editItem ? 'Update Item' : 'Add Item' ?>
                                             </button>
                                         </div>
@@ -1376,7 +1376,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Lost Item Records</h5>
+                                    <h5 class="card-title mb-0">Lost Item Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -1438,7 +1438,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <div class="text-end mt-3">
                                         <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all lost and found items? This action cannot be undone.');">
                                             <button type="submit" name="clear_all_items" class="btn btn-danger">
-                                                Clear Lost Items
+                                            <i class="bi bi-trash me-2"></i>Clear Records
                                             </button>
                                         </form>
                                     </div>
@@ -1454,7 +1454,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Feedback Management</h5>
+                                    <h5 class="card-title mb-0">Feedback Log</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -1513,7 +1513,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <div class="text-end mt-3">
                                         <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all feedback records? This action cannot be undone.');">
                                             <button type="submit" name="clear_all_feedback" class="btn btn-danger">
-                                                Clear Feedback Records
+                                            <i class="bi bi-trash me-2"></i>Clear Records
                                             </button>
                                         </form>
                                     </div>
@@ -1529,7 +1529,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Generate Reports</h5>
+                                    <h5 class="card-title mb-0">Generate Report</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -1537,7 +1537,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Events Report</h5>
+                                                    <h5 class="card-title">Event Report</h5>
                                                     <p class="card-text">Generate a report of all events and their attendance.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="events">
@@ -1777,6 +1777,9 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
 
                                         <div class="text-end">
+                                            <button type="button" class="btn btn-secondary me-2" onclick="showSection('dashboardSection')">
+                                                <i class="bi bi-x-circle me-2"></i>Cancel
+                                            </button>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="bi bi-save me-2"></i>Save Changes
                                             </button>
