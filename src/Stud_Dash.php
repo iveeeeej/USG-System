@@ -1012,13 +1012,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         <div class="row">
                                             <div class="mb-3">
                                                 <label for="firstName" class="form-label">Full Name</label>
-                                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($userFullname) ?>" required>
+                                                <input type="text" class="form-control" id="firstName" name="firstName" value="<?= htmlspecialchars($userFullname) ?>">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" required>
+                                            <input type="email" class="form-control" id="email" name="email">
                                         </div>
 
                                         <h6 class="mb-3">Change Password</h6>
