@@ -397,13 +397,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             }
             .nav-link {
                 color: rgba(255, 255, 255, 0.75);
+                transition: all 0.3s ease;
+                border-radius: 5px;
+                margin: 2px 0;
+                padding: 10px 15px;
             }
             .nav-link:hover {
                 color: white;
+                background-color: rgba(255, 255, 255, 0.5);
+                transform: translateX(5px);
             }
             .nav-link.active {
                 color: white;
                 background-color: rgba(255, 255, 255, 0.1);
+                border-left: 4px solid #f9a602;
+            }
+            .nav-link i {
+                transition: transform 0.3s ease;
+            }
+            .nav-link:hover i {
+                transform: scale(1.2);
             }
             #sidebarToggle {
                 cursor: pointer;
@@ -450,10 +463,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             .card {
                 margin-bottom: 20px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
             }
             .card-icon {
                 font-size: 2rem;
                 color: #0d6efd;
+                transition: all 0.3s ease;
+            }
+            .card:hover .card-icon {
+                transform: scale(1.1);
+                color: #0a58ca;
+            }
+            .card-title {
+                transition: all 0.3s ease;
+            }
+            .card:hover .card-title {
+                color: #f9a602;
             }
             /* Fix form inline buttons spacing */
             form.inline-form {
@@ -475,7 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
 
         <div class="d-flex align-items-center">
             <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2" />
-            <a class="navbar-brand" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
+            <a class="navbar-brand fw-bold" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
         </div>
 
             <div class="dropdown">
@@ -595,7 +625,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Events</h5>
+                                            <h5 class="card-title fw-bold">Events</h5>
                                             <h2 class="mb-0" id="totalEventsCount">
                                                 <?= $totalEvents ?>
                                             </h2>
@@ -617,7 +647,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Attendance</h5>
+                                            <h5 class="card-title fw-bold">Attendance</h5>
                                             <h2 class="mb-0">
                                                 &nbsp
                                             </h2>
@@ -637,7 +667,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Payments</h5>
+                                            <h5 class="card-title fw-bold">Payments</h5>
                                             <h2 class="mb-0">
                                                 <?= count($payments) ?>
                                             </h2>
@@ -657,7 +687,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Lost and Found</h5>
+                                            <h5 class="card-title fw-bold">Lost and Found</h5>
                                             <h2 class="mb-0">
                                                 <?= count($lostAndFoundItems) ?>
                                             </h2>
@@ -677,7 +707,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         <div class="col-12">
                             <div class="card" aria-label="Calendar">
                                 <div class="card-body">
-                                    <h5 class="card-title">Calendar</h5>
+                                    <h5 class="card-title fw-bold">Calendar</h5>
                                     <div id="calendar"></div>
                                 </div>
                             </div>
@@ -753,22 +783,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                             <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="attendeeName" class="form-label">Attendee Name</label>
+                                            <label for="attendeeName" class="form-label fw-bold">Attendee Name</label>
                                             <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
                                             <div class="invalid-feedback" id="attendeeNameError"></div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attDate" class="form-label">Date</label>
+                                            <label for="attDate" class="form-label fw-bold">Date</label>
                                             <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
                                             <div class="invalid-feedback" id="attDateError"></div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attTime" class="form-label">Time</label>
+                                            <label for="attTime" class="form-label fw-bold">Time</label>
                                             <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
                                             <div class="invalid-feedback" id="attTimeError"></div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attEvent" class="form-label">Event</label>
+                                            <label for="attEvent" class="form-label fw-bold">Event</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
                                                 <option value="">Select Event</option>
                                                 <?php foreach ($events as $event): ?>
@@ -915,7 +945,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                             <form id="feedbackForm" method="post" action="" novalidate>
                                                 <input type="hidden" name="submit_feedback" value="1">
                                                 <div class="mb-3">
-                                                    <label for="feedbackType" class="form-label">Feedback Type</label>
+                                                    <label for="feedbackType" class="form-label fw-bold">Feedback Type</label>
                                                     <select class="form-select" id="feedbackType" name="feedbackType">
                                                         <option value="">Select Type</option>
                                                         <option value="suggestion">Suggestion</option>
@@ -925,11 +955,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="feedbackTitle" class="form-label">Subject</label>
+                                                    <label for="feedbackTitle" class="form-label fw-bold">Subject</label>
                                                     <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="feedbackDescription" class="form-label">Comment</label>
+                                                    <label for="feedbackDescription" class="form-label fw-bold">Comment</label>
                                                     <textarea class="form-control" id="feedbackDescription" name="feedbackDescription" rows="4"></textarea>
                                                 </div>
                                                 <div class="text-end">

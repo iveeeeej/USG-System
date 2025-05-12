@@ -579,13 +579,26 @@ if (isset($_GET['edit_item_id'])) {
             }
             .nav-link {
                 color: rgba(255, 255, 255, 0.75);
+                transition: all 0.3s ease;
+                border-radius: 5px;
+                margin: 2px 0;
+                padding: 10px 15px;
             }
             .nav-link:hover {
                 color: white;
+                background-color: rgba(255, 255, 255, 0.5);
+                transform: translateX(5px);
             }
             .nav-link.active {
                 color: white;
                 background-color: rgba(255, 255, 255, 0.1);
+                border-left: 4px solid #f9a602;
+            }
+            .nav-link i {
+                transition: transform 0.3s ease;
+            }
+            .nav-link:hover i {
+                transform: scale(1.2);
             }
             #sidebarToggle {
                 cursor: pointer;
@@ -632,10 +645,27 @@ if (isset($_GET['edit_item_id'])) {
             .card {
                 margin-bottom: 20px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
             }
             .card-icon {
                 font-size: 2rem;
                 color: #0d6efd;
+                transition: all 0.3s ease;
+            }
+            .card:hover .card-icon {
+                transform: scale(1.1);
+                color: #0a58ca;
+            }
+            .card-title {
+                transition: all 0.3s ease;
+            }
+            .card:hover .card-title {
+                color: #f9a602;
             }
             /* Fix form inline buttons spacing */
             form.inline-form {
@@ -657,7 +687,7 @@ if (isset($_GET['edit_item_id'])) {
 
         <div class="d-flex align-items-center">
             <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2" />
-            <a class="navbar-brand" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
+            <a class="navbar-brand fw-bold" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
         </div>
 
             <div class="dropdown">
@@ -692,7 +722,7 @@ if (isset($_GET['edit_item_id'])) {
                     <ul class="nav flex-column">
 
                         <!-- Home -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="dashboardSection" id="navDashboard">
                                 <i class="bi bi-house me-2"></i>
                                 Home
@@ -700,7 +730,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Events Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" data-bs-toggle="collapse" href="#eventsSubMenu" role="button" aria-expanded="true" aria-controls="eventsSubMenu">
                                 <i class="bi bi-calendar-event me-2"></i>
                                 Events
@@ -708,13 +738,13 @@ if (isset($_GET['edit_item_id'])) {
                             </a>
                             <div class="collapse" id="eventsSubMenu">
                                 <ul class="nav flex-column ps-3">
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="createEventSection" id="navCreateEvent">
                                             <i class="bi bi-plus-circle me-2"></i>
                                             Create Event
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="viewEventsSection" id="navViewEvents">
                                             <i class="bi bi-eye me-2"></i>
                                             Event Log
@@ -725,7 +755,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Attendance Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" data-bs-toggle="collapse" href="#attendanceSubMenu" role="button" aria-expanded="false" aria-controls="attendanceSubMenu" id="navAttendanceCollapseBtn">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
@@ -733,13 +763,13 @@ if (isset($_GET['edit_item_id'])) {
                             </a>
                             <div class="collapse" id="attendanceSubMenu">
                                 <ul class="nav flex-column ps-3">
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="recordAttendanceSection" id="navRecordAttendance">
                                             <i class="bi bi-plus-circle me-2"></i>
                                             Record Attendance
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="viewAttendanceSection" id="navViewAttendance">
                                             <i class="bi bi-eye me-2"></i>
                                             Attendance Log
@@ -750,7 +780,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Payments Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" data-bs-toggle="collapse" href="#paymentsSubMenu" role="button" aria-expanded="false" aria-controls="paymentsSubMenu" id="navPaymentsCollapseBtn">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Payments
@@ -758,13 +788,13 @@ if (isset($_GET['edit_item_id'])) {
                             </a>
                             <div class="collapse" id="paymentsSubMenu">
                                 <ul class="nav flex-column ps-3">
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="createPaymentSection" id="navCreatePayment">
                                             <i class="bi bi-plus-circle me-2"></i>
                                             Create Payment
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="viewPaymentsSection" id="navViewPayments">
                                             <i class="bi bi-eye me-2"></i>
                                             Payment Log
@@ -775,7 +805,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Lost and Found Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" data-bs-toggle="collapse" href="#lostAndFoundSubMenu" role="button" aria-expanded="false" aria-controls="lostAndFoundSubMenu">
                                 <i class="bi bi-question-diamond me-2"></i>
                                 Lost and Found
@@ -783,13 +813,13 @@ if (isset($_GET['edit_item_id'])) {
                             </a>
                             <div class="collapse" id="lostAndFoundSubMenu">
                                 <ul class="nav flex-column ps-3">
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="addItemSection" id="navAddItem">
                                             <i class="bi bi-plus-circle me-2"></i>
                                             Add Item
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="viewItemsSection" id="navViewItems">
                                             <i class="bi bi-eye me-2"></i>
                                             Lost Item Log
@@ -800,7 +830,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Feedback -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="feedbackSection">
                                 <i class="bi bi-chat-left-text me-2"></i>
                                 Feedback
@@ -808,7 +838,7 @@ if (isset($_GET['edit_item_id'])) {
                         </li>
 
                         <!-- Generate Report -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="generateReportSection">
                                 <i class="bi bi-file-earmark-bar-graph me-2"></i>
                                 Generate Report
@@ -852,7 +882,7 @@ if (isset($_GET['edit_item_id'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Events</h5>
+                                            <h5 class="card-title fw-bold">Events</h5>
                                             <h2 class="mb-0" id="totalEventsCount">
                                                 <?= $totalEvents ?>
                                             </h2>
@@ -873,7 +903,7 @@ if (isset($_GET['edit_item_id'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Attendance</h5>
+                                            <h5 class="card-title fw-bold">Attendance</h5>
                                             <h2 class="mb-0">
                                                 <?= count($attendances) ?>
                                             </h2>
@@ -892,7 +922,7 @@ if (isset($_GET['edit_item_id'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Payments</h5>
+                                            <h5 class="card-title fw-bold">Payments</h5>
                                             <h2 class="mb-0">
                                                 <?= count($payments) ?>
                                             </h2>
@@ -911,7 +941,7 @@ if (isset($_GET['edit_item_id'])) {
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h5 class="card-title">Lost and Found</h5>
+                                            <h5 class="card-title fw-bold">Lost and Found</h5>
                                             <h2 class="mb-0">
                                                 <?= count($lostAndFoundItems) ?>
                                             </h2>
@@ -932,7 +962,7 @@ if (isset($_GET['edit_item_id'])) {
                             <div class="card" aria-label="General Report">
                                 <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-center">
                                     <div>
-                                        <h5 class="card-title">General Report</h5>
+                                        <h5 class="card-title fw-bold">General Report</h5>
                                         <p class="card-text text-muted mb-2">Generate and download summary reports for all sections.</p>
                                     </div>
                                     <a href="#generateReportSection" class="btn btn-primary mt-3 mt-md-0" data-section="generateReportSection">
@@ -948,7 +978,7 @@ if (isset($_GET['edit_item_id'])) {
                         <div class="col-12">
                             <div class="card" aria-label="Calendar">
                                 <div class="card-body">
-                                    <h5 class="card-title">Calendar</h5>
+                                    <h5 class="card-title fw-bold">Calendar</h5>
                                     <div id="calendar"></div>
                                 </div>
                             </div>
@@ -973,19 +1003,19 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="event_id" value="<?= $editEvent['id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="eventName" class="form-label">Event Name</label>
+                                            <label for="eventName" class="form-label fw-bold">Event Name</label>
                                             <input type="text" class="form-control" id="eventName" name="eventName" required value="<?= htmlspecialchars($_POST['eventName'] ?? $editEvent['eventname'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="startDate" class="form-label">Start Date</label>
+                                            <label for="startDate" class="form-label fw-bold">Start Date</label>
                                             <input type="date" class="form-control" id="startDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['startdate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="endDate" class="form-label">End Date</label>
+                                            <label for="endDate" class="form-label fw-bold">End Date</label>
                                             <input type="date" class="form-control" id="endDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editEvent ? date('Y-m-d', strtotime($editEvent['enddate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="eventDescription" class="form-label">Description</label>
+                                            <label for="eventDescription" class="form-label fw-bold">Description</label>
                                             <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editEvent['description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="text-end">
@@ -1084,19 +1114,19 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="attendance_id" value="<?= $editAttendance['id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="attendeeName" class="form-label">Attendee Name</label>
+                                            <label for="attendeeName" class="form-label fw-bold">Attendee Name</label>
                                             <input type="text" class="form-control" id="attendeeName" name="attendeeName" required value="<?= htmlspecialchars($_POST['attendeeName'] ?? $editAttendance['name'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attDate" class="form-label">Date</label>
+                                            <label for="attDate" class="form-label fw-bold">Date</label>
                                             <input type="date" class="form-control" id="attDate" name="attDate" required value="<?= htmlspecialchars($_POST['attDate'] ?? ($editAttendance ? date('Y-m-d', strtotime($editAttendance['date'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attTime" class="form-label">Time</label>
+                                            <label for="attTime" class="form-label fw-bold">Time</label>
                                             <input type="time" class="form-control" id="attTime" name="attTime" required value="<?= htmlspecialchars($_POST['attTime'] ?? $editAttendance['time'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="attEvent" class="form-label">Event</label>
+                                            <label for="attEvent" class="form-label fw-bold">Event</label>
                                             <select class="form-select" id="attEvent" name="attEvent" required>
                                                 <option value="">Select Event</option>
                                                 <?php foreach ($events as $event): ?>
@@ -1202,24 +1232,24 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="pay_id" value="<?= $editPayment['pay_id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="PaymentName" class="form-label">Payment Name</label>
+                                            <label for="PaymentName" class="form-label fw-bold">Payment Name</label>
                                             <input type="text" class="form-control" id="PaymentName" name="PaymentName" required value="<?= htmlspecialchars($_POST['PaymentName'] ?? $editPayment['payname'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="Amount" class="form-label">Amount</label>
+                                            <label for="Amount" class="form-label fw-bold">Amount</label>
                                             <input type="text" class="form-control" id="Amount" name="Amount" required value="<?= htmlspecialchars($_POST['Amount'] ?? $editPayment['amount'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="paymentDueDate" class="form-label">Due Date</label>
+                                            <label for="paymentDueDate" class="form-label fw-bold">Due Date</label>
                                             <input type="date" class="form-control" id="paymentDueDate" name="startDate" required value="<?= htmlspecialchars($_POST['startDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_startdate'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="paymentCutoffDate" class="form-label">Cut-Off Date</label>
+                                            <label for="paymentCutoffDate" class="form-label fw-bold">Cut-Off Date</label>
                                             <input type="date" class="form-control" id="paymentCutoffDate" name="endDate" required value="<?= htmlspecialchars($_POST['endDate'] ?? ($editPayment ? date('Y-m-d', strtotime($editPayment['pay_enddate'])) : '')) ?>" />
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="eventDescription" class="form-label">Description</label>
+                                            <label for="eventDescription" class="form-label fw-bold">Description</label>
                                             <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4"><?= htmlspecialchars($_POST['eventDescription'] ?? $editPayment['pay_description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="text-end">
@@ -1320,11 +1350,11 @@ if (isset($_GET['edit_item_id'])) {
                                             <input type="hidden" name="item_id" value="<?= $editItem['lst_id'] ?>" />
                                         <?php endif; ?>
                                         <div class="mb-3">
-                                            <label for="itemName" class="form-label">Item Name</label>
+                                            <label for="itemName" class="form-label fw-bold">Item Name</label>
                                             <input type="text" class="form-control" id="itemName" name="itemName" required value="<?= htmlspecialchars($_POST['itemName'] ?? $editItem['lst_name'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="itemCategory" class="form-label">Category</label>
+                                            <label for="itemCategory" class="form-label fw-bold">Category</label>
                                             <select class="form-select" id="itemCategory" name="itemCategory" required>
                                                 <option value="">Select Category</option>
                                                 <option value="Electronics" <?= (($_POST['itemCategory'] ?? $editItem['category'] ?? '') === 'Electronics') ? 'selected' : '' ?>>Electronics</option>
@@ -1335,19 +1365,19 @@ if (isset($_GET['edit_item_id'])) {
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="dateFound" class="form-label">Date Found</label>
+                                            <label for="dateFound" class="form-label fw-bold">Date Found</label>
                                             <input type="date" class="form-control" id="dateFound" name="dateFound" required value="<?= htmlspecialchars($_POST['dateFound'] ?? ($editItem ? date('Y-m-d', strtotime($editItem['date_found'])) : '')) ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="location" class="form-label">Location Found</label>
+                                            <label for="location" class="form-label fw-bold">Location Found</label>
                                             <input type="text" class="form-control" id="location" name="location" required value="<?= htmlspecialchars($_POST['location'] ?? $editItem['location'] ?? '') ?>" />
                                         </div>
                                         <div class="mb-3">
-                                            <label for="description" class="form-label">Description</label>
+                                            <label for="description" class="form-label fw-bold">Description</label>
                                             <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($_POST['description'] ?? $editItem['description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="itemImage" class="form-label">Item Image</label>
+                                            <label for="itemImage" class="form-label fw-bold">Item Image</label>
                                             <input type="file" class="form-control" id="itemImage" name="itemImage" accept="image/*" <?= !$editItem ? 'required' : '' ?> />
                                             <?php if ($editItem && $editItem['lst_img']): ?>
                                                 <div class="mt-2">
@@ -1537,7 +1567,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Event Report</h5>
+                                                    <h5 class="card-title fw-bold">Event Report</h5>
                                                     <p class="card-text">Generate a report of all events and their attendance.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="events">
@@ -1574,7 +1604,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Attendance Report</h5>
+                                                    <h5 class="card-title fw-bold">Attendance Report</h5>
                                                     <p class="card-text">Generate a report of attendance records for all events.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="attendance">
@@ -1611,7 +1641,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Payment Report</h5>
+                                                    <h5 class="card-title fw-bold">Payment Report</h5>
                                                     <p class="card-text">Generate a report of all payment records.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="payments">
@@ -1648,7 +1678,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Lost and Found Report</h5>
+                                                    <h5 class="card-title fw-bold">Lost and Found Report</h5>
                                                     <p class="card-text">Generate a report of all lost and found items.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="lost_and_found">
@@ -1685,7 +1715,7 @@ if (isset($_GET['edit_item_id'])) {
                                         <div class="col-md-6 col-lg-4 mb-4">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">Feedback Report</h5>
+                                                    <h5 class="card-title fw-bold">Feedback Report</h5>
                                                     <p class="card-text">Generate a report of all feedback records.</p>
                                                     <form method="post" action="generate_report.php">
                                                         <input type="hidden" name="report_type" value="feedback">
