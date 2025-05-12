@@ -34,13 +34,14 @@ $userFullname   = '';
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
     
-    // Fetch user's full name if logged in
+    // Fetch user's full name and profile image if logged in
     if (isset($_SESSION['user_id'])) {
-        $stmt = $pdo->prepare('SELECT full_name FROM user_profile WHERE user_id = ?');
+        $stmt = $pdo->prepare('SELECT full_name, profile_picture FROM user_profile WHERE user_id = ?');
         $stmt->execute([$_SESSION['user_id']]);
         $result = $stmt->fetch();
         if ($result) {
             $userFullname = $result['full_name'];
+            $userProfileImage = $result['profile_picture'];
             error_log('User fullname retrieved: ' . $userFullname); // Debug log
         } else {
             error_log('No user found with ID: ' . $_SESSION['user_id']); // Debug log
@@ -519,7 +520,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
-                        <img id="adminLogoImg" src="../img/Profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
+                        <img id="adminLogoImg" src="<?= isset($userProfileImage) ? 'data:image/jpeg;base64,' . base64_encode($userProfileImage) : '../img/Profile.png' ?>" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
@@ -998,7 +999,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                     <form id="manageAccountForm" method="post" enctype="multipart/form-data">
                                         <div class="text-center mb-4">
                                             <div class="position-relative d-inline-block">
-                                                <img id="profileImage" src="../img/Profile.png" alt="Profile Image" 
+                                                <img id="profileImage" src="<?= isset($userProfileImage) ? 'data:image/jpeg;base64,' . base64_encode($userProfileImage) : '../img/Profile.png' ?>" alt="Profile Image"
                                                      class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                                                 <label for="profileImageInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" 
                                                        style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
@@ -1019,8 +1020,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                             <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="email" name="email" required>
                                         </div>
-
-                                        <hr class="my-4">
 
                                         <h6 class="mb-3">Change Password</h6>
                                         <div class="mb-3">
