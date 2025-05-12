@@ -664,7 +664,7 @@ if (isset($_GET['edit_item_id'])) {
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
-                        <img id="adminLogoImg" src="../img/default-profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
+                        <img id="adminLogoImg" src="../img/Profile.png" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
@@ -1736,7 +1736,7 @@ if (isset($_GET['edit_item_id'])) {
                                     <form id="manageAccountForm" method="post" enctype="multipart/form-data">
                                         <div class="text-center mb-4">
                                             <div class="position-relative d-inline-block">
-                                                <img id="profileImage" src="../img/default-profile.png" alt="Profile Image" 
+                                                <img id="profileImage" src="../img/Profile.png" alt="Profile Image" 
                                                      class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                                                 <label for="profileImageInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" 
                                                        style="cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
