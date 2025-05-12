@@ -86,7 +86,7 @@ switch ($reportType) {
     case 'payments':
         $query = "SELECT * FROM pay WHERE 1=1 $dateCondition ORDER BY pay_startdate DESC";
         $filename = 'payments_report.csv';
-        $headers = ['ID', 'Payment Name', 'Start Date', 'End Date', 'Description'];
+        $headers = ['ID', 'Payment Name', 'Amount', 'Start Date', 'End Date', 'Description'];
         break;
 
     case 'lost_and_found':
@@ -153,6 +153,7 @@ try {
                 $csvRow = [
                     $row['pay_id'],
                     $row['payname'],
+                    $row['amount'],
                     $row['pay_startdate'],
                     $row['pay_enddate'],
                     $row['pay_description']
