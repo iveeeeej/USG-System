@@ -419,8 +419,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_item'])) {
         } else {
             $imageData = file_get_contents($_FILES['itemImage']['tmp_name']);
         }
-    } else {
-        $errors[] = 'Item image is required.';
     }
 
     // Create if no errors
@@ -641,7 +639,14 @@ if (isset($_GET['edit_item_id'])) {
             .dropdown-menu {
                 right: 0;
                 left: auto;
+                transform: translateX(-100px);
+                min-width: 200px;
+          /**/  position: absolute;
+                margin-top: 0.5rem;
             }
+            .dropdown {
+                position: relative;
+            } /**/
             .card {
                 margin-bottom: 20px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -1377,8 +1382,8 @@ if (isset($_GET['edit_item_id'])) {
                                             <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($_POST['description'] ?? $editItem['description'] ?? '') ?></textarea>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="itemImage" class="form-label fw-bold">Item Image</label>
-                                            <input type="file" class="form-control" id="itemImage" name="itemImage" accept="image/*" <?= !$editItem ? 'required' : '' ?> />
+                                            <label for="itemImage" class="form-label fw-bold">Item Image (Optional)</label>
+                                            <input type="file" class="form-control" id="itemImage" name="itemImage" accept="image/*" />
                                             <?php if ($editItem && $editItem['lst_img']): ?>
                                                 <div class="mt-2">
                                                     <img src="data:image/jpeg;base64,<?= base64_encode($editItem['lst_img']) ?>" alt="Current item image" class="img-thumbnail" style="max-width: 200px;" />
@@ -1807,7 +1812,7 @@ if (isset($_GET['edit_item_id'])) {
                                         </div>
 
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-secondary me-2" onclick="showSection('dashboardSection')">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('dashboardSection')">
                                                 <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
@@ -2390,10 +2395,7 @@ if (isset($_GET['edit_item_id'])) {
                     showError('location', 'Location is required');
                     hasError = true;
                 }
-                if (!itemImage.files.length && !itemImage.hasAttribute('data-has-image')) {
-                    showError('itemImage', 'Item image is required');
-                    hasError = true;
-                }
+                // Remove image validation check
                 
                 if (!hasError) {
                     const submitButton = this.querySelector('button[type="submit"]');

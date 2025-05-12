@@ -459,6 +459,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             .dropdown-menu {
                 right: 0;
                 left: auto;
+                transform: translateX(-100px);
+                min-width: 200px;
+                position: absolute;
+                margin-top: 0.5rem;
+            }
+            .dropdown {
+                position: relative;
             }
             .card {
                 margin-bottom: 20px;
@@ -540,7 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                     <ul class="nav flex-column">
 
                         <!-- Home -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="dashboardSection" id="navDashboard">
                                 <i class="bi bi-house me-2"></i>
                                 Home
@@ -548,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         </li>
 
                         <!-- Events Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="viewEventsSection">
                                 <i class="bi bi-calendar-event me-2"></i>
                                 Events
@@ -556,7 +563,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         </li>
 
                         <!-- Attendance Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="recordAttendanceForm">
                                 <i class="bi bi-people me-2"></i>
                                 Attendance
@@ -564,7 +571,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         </li>
 
                         <!-- Payments Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="viewPaymentsSection">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Payments
@@ -572,7 +579,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         </li>
 
                         <!-- Lost and Found Menu -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="viewItemsSection">
                                 <i class="bi bi-question-diamond me-2"></i>
                                 Lost and Found
@@ -580,7 +587,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                         </li>
 
                         <!-- Feedback -->
-                        <li class="nav-item">
+                        <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="feedbackSection">
                                 <i class="bi bi-chat-left-text me-2"></i>
                                 Feedback
@@ -1032,7 +1039,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         </div>
 
                                         <div class="text-end">
-                                            <button type="button" class="btn btn-secondary me-2" onclick="showSection('dashboardSection')">
+                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('dashboardSection')">
                                                 <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
