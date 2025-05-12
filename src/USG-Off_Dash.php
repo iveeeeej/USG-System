@@ -313,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_item'])) {
     if ($deleteId > 0) {
         $stmt = $pdo->prepare('DELETE FROM lst_fnd WHERE lst_id = ?');
         $stmt->execute([$deleteId]);
-        header('Location: ' . $_SERVER['PHP_SELF'] . '#lostAndFoundSection');
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewItemsSection');
         exit();
     }
 }
