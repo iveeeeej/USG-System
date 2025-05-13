@@ -2790,32 +2790,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
             createAnnouncementForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const announcementTitle = document.getElementById('announcementTitle').value.trim();
-                const announcementContent = document.getElementById('announcementContent').value.trim();
+                const title = document.getElementById('announcementTitle').value.trim();
+                const content = document.getElementById('announcementContent').value.trim();
                 
                 // Clear previous errors
                 document.querySelectorAll('.error-message').forEach(msg => msg.remove());
                 
-                let hasError = false;
-                
-                if (!announcementTitle) {
-                    showError('announcementTitle', 'Title is required');
-                    hasError = true;
+                // Validate fields
+                if (!title || !content) {
+                    if (!title) showError('announcementTitle', 'Title is required');
+                    if (!content) showError('announcementContent', 'Content is required');
+                    return;
                 }
                 
-                if (!announcementContent) {
-                    showError('announcementContent', 'Content is required');
-                    hasError = true;
-                }
-                
-                if (!hasError) {
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.disabled = true;
-                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                // If validation passes, submit via fetch
+                const formData = new FormData(this);
+                fetch('handle_announcement.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect back to the dashboard with success message
+                        window.location.href = 'USG-Off_Dash.php?msg=' + encodeURIComponent(data.message) + '#viewAnnouncementsSection';
+                    } else {
+                        alert('Error: ' + data.message);
                     }
-                    this.submit();
-                }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing your request.');
+                });
             });
 
             // Add input event listeners for real-time validation
@@ -2883,6 +2889,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
     // Handle form submissions
     document.getElementById('createAnnouncementForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
+        
+        const title = document.getElementById('announcementTitle').value.trim();
+        const content = document.getElementById('announcementContent').value.trim();
+        
+        if (!title || !content) {
+            if (!title) showError('announcementTitle', 'Title is required');
+            if (!content) showError('announcementContent', 'Content is required');
+            return;
+        }
+        
         const formData = new FormData(this);
         
         fetch('handle_announcement.php', {
