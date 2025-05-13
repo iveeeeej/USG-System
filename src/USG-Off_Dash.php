@@ -53,10 +53,32 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
     $deleteId = (int) ($_POST['event_id'] ?? 0);
     if ($deleteId > 0) {
-        $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
-        $stmt->execute([$deleteId]);
-        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewEventsSection');
-        exit();
+        try {
+            // Start transaction
+            $pdo->beginTransaction();
+            
+            // Delete related records from confirm_attendance table
+            $stmt = $pdo->prepare('DELETE FROM confirm_attendance WHERE event_id = ?');
+            $stmt->execute([$deleteId]);
+            
+            // Delete related records from attendance table
+            $stmt = $pdo->prepare('DELETE FROM attendance WHERE event_id = ?');
+            $stmt->execute([$deleteId]);
+            
+            // Now delete the event
+            $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
+            $stmt->execute([$deleteId]);
+            
+            // Commit transaction
+            $pdo->commit();
+            
+            header('Location: ' . $_SERVER['PHP_SELF'] . '#viewEventsSection');
+            exit();
+        } catch (\PDOException $e) {
+            // Rollback transaction on error
+            $pdo->rollBack();
+            $errors[] = 'Error deleting event: ' . $e->getMessage();
+        }
     }
 }
 
@@ -2761,6 +2783,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                 });
             }
         });
+
+        // Create Announcement Form Validation
+        const createAnnouncementForm = document.getElementById('createAnnouncementForm');
+        if (createAnnouncementForm) {
+            createAnnouncementForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const announcementTitle = document.getElementById('announcementTitle').value.trim();
+                const announcementContent = document.getElementById('announcementContent').value.trim();
+                
+                // Clear previous errors
+                document.querySelectorAll('.error-message').forEach(msg => msg.remove());
+                
+                let hasError = false;
+                
+                if (!announcementTitle) {
+                    showError('announcementTitle', 'Title is required');
+                    hasError = true;
+                }
+                
+                if (!announcementContent) {
+                    showError('announcementContent', 'Content is required');
+                    hasError = true;
+                }
+                
+                if (!hasError) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    }
+                    this.submit();
+                }
+            });
+
+            // Add input event listeners for real-time validation
+            const announcementTitle = document.getElementById('announcementTitle');
+            const announcementContent = document.getElementById('announcementContent');
+
+            if (announcementTitle) {
+                announcementTitle.addEventListener('input', function() {
+                    clearErrors(this);
+                });
+            }
+
+            if (announcementContent) {
+                announcementContent.addEventListener('input', function() {
+                    clearErrors(this);
+                });
+            }
+        }
     });
 
     // Function to show/hide sections
@@ -2819,7 +2892,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = '?msg=' + encodeURIComponent(data.message) + '#viewAnnouncementsSection';
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                successAlert.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.querySelector('.main-content').insertBefore(successAlert, document.querySelector('.section-container'));
+                
+                // Clear form fields
+                document.getElementById('announcementTitle').value = '';
+                document.getElementById('announcementContent').value = '';
+                
+                // Auto-dismiss alert after 5 seconds
+                setTimeout(() => {
+                    const alert = bootstrap.Alert.getOrCreateInstance(successAlert);
+                    alert.close();
+                }, 5000);
             } else {
                 alert('Error: ' + data.message);
             }
