@@ -218,11 +218,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
 
     // Create if no errors
     if (empty($errors)) {
-        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+        // Insert into confirm_attendance table first
+        $stmt = $pdo->prepare('INSERT INTO confirm_attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$name, $date, $time, $event_id]);
-        $successMessage = 'Attendance recorded successfully.';
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
+        $successMessage = 'Attendance submitted for approval.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#confirmAttendanceSection');
         exit();
+    }
+}
+
+// Handle Approve Attendance
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_attendance'])) {
+    $attendance_id = (int) ($_POST['attendance_id'] ?? 0);
+    
+    if ($attendance_id > 0) {
+        try {
+            // Start transaction
+            $pdo->beginTransaction();
+            
+            // Get the attendance record from confirm_attendance
+            $stmt = $pdo->prepare('SELECT * FROM confirm_attendance WHERE id = ?');
+            $stmt->execute([$attendance_id]);
+            $attendance = $stmt->fetch();
+            
+            if ($attendance) {
+                // Insert into attendance table
+                $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$attendance['name'], $attendance['date'], $attendance['time'], $attendance['event_id']]);
+                
+                // Delete from confirm_attendance
+                $stmt = $pdo->prepare('DELETE FROM confirm_attendance WHERE id = ?');
+                $stmt->execute([$attendance_id]);
+                
+                $pdo->commit();
+                $successMessage = 'Attendance approved successfully.';
+                header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
+                exit();
+            }
+        } catch (\PDOException $e) {
+            $pdo->rollBack();
+            $errors[] = 'Error approving attendance: ' . $e->getMessage();
+        }
     }
 }
 
@@ -439,8 +475,12 @@ try {
     $events = $stmt->fetchAll();
 
     // Fetch attendance with event names
-    $stmt        = $pdo->query('SELECT a.*, e.eventname FROM attendance a JOIN events e ON a.event_id = e.id ORDER BY a.date DESC, a.time DESC');
+    $stmt = $pdo->query('SELECT a.*, e.eventname FROM attendance a JOIN events e ON a.event_id = e.id ORDER BY a.date DESC, a.time DESC');
     $attendances = $stmt->fetchAll();
+
+    // Fetch confirmed attendance with event names
+    $stmt = $pdo->query('SELECT ca.*, e.eventname FROM confirm_attendance ca JOIN events e ON ca.event_id = e.id ORDER BY ca.date DESC, ca.time DESC');
+    $confirmedAttendances = $stmt->fetchAll();
 
     // Fetch payments
     $stmt     = $pdo->query('SELECT * FROM pay ORDER BY pay_startdate DESC');
@@ -521,6 +561,18 @@ if (isset($_GET['edit_item_id'])) {
     $stmt = $pdo->prepare('SELECT * FROM lst_fnd WHERE lst_id = ?');
     $stmt->execute([$editItemId]);
     $editItem = $stmt->fetch();
+}
+
+// Handle Delete Confirm Attendance
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attendance'])) {
+    $deleteId = (int) ($_POST['attendance_id'] ?? 0);
+    if ($deleteId > 0) {
+        $stmt = $pdo->prepare('DELETE FROM confirm_attendance WHERE id = ?');
+        $stmt->execute([$deleteId]);
+        $successMessage = 'Attendance request deleted successfully.';
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#confirmAttendanceSection');
+        exit();
+    }
 }
 ?>
 
@@ -691,19 +743,19 @@ if (isset($_GET['edit_item_id'])) {
                 <i class="bi bi-list"></i>
             </button>
 
-        <div class="d-flex align-items-center">
-            <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2" />
-            <a class="navbar-brand fw-bold" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
-        </div>
+            <div class="d-flex align-items-center flex-grow-1">
+                <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2 d-none d-sm-block" />
+                <a class="navbar-brand fw-bold text-truncate" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
+            </div>
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
+                    <span class="me-2 d-none d-md-inline text-truncate" style="max-width: 150px;"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
                         <img id="adminLogoImg" src="<?= isset($userProfileImage) ? 'data:image/jpeg;base64,' . base64_encode($userProfileImage) : '../img/Profile.png' ?>" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
                 </div>
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
                     <li><a class="dropdown-item" href="#" data-section="manageAccountSection"><i class="bi bi-gear me-2"></i>Manage Account</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="USG-Login.php"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
@@ -773,6 +825,12 @@ if (isset($_GET['edit_item_id'])) {
                                         <a class="nav-link" href="#" data-section="recordAttendanceSection" id="navRecordAttendance">
                                             <i class="bi bi-plus-circle me-2"></i>
                                             Record Attendance
+                                        </a>
+                                    </li>
+                                    <li class="nav-item fw-bold">
+                                        <a class="nav-link" href="#" data-section="confirmAttendanceSection" id="navConfirmAttendance">
+                                            <i class="bi bi-eye me-2"></i>
+                                            Approval Requests
                                         </a>
                                     </li>
                                     <li class="nav-item fw-bold">
@@ -1157,6 +1215,63 @@ if (isset($_GET['edit_item_id'])) {
                     </div>
                 </section>
 
+                <!-- Confirm Attendance Section -->
+                <section id="confirmAttendanceSection" class="section-container d-none" aria-label="Confirm Attendance Section">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Approval Requests</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="attendanceTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Attendee Name</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Time</th>
+                                                    <th scope="col">Event</th>
+                                                    <th scope="col" style="min-width: 110px">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (!empty($confirmedAttendances)): ?>
+                                                    <?php foreach ($confirmedAttendances as $index => $attendance): ?>
+                                                        <tr>
+                                                            <th scope="row"><?= $index + 1 ?></th>
+                                                            <td><?= htmlspecialchars($attendance['name']) ?></td>
+                                                            <td><?= (new DateTime($attendance['date']))->format('M d, Y') ?></td>
+                                                            <td><?= (new DateTime($attendance['time']))->format('h:i A') ?></td>
+                                                            <td><?= htmlspecialchars($attendance['eventname']) ?></td>
+                                                            <td>
+                                                                <form method="post" class="d-inline">
+                                                                    <input type="hidden" name="attendance_id" value="<?= $attendance['id'] ?>" />
+                                                                    <button type="submit" name="approve_attendance" class="btn btn-sm btn-success me-1">
+                                                                        <i class="bi bi-check-circle"></i>
+                                                                    </button>
+                                                                    <button type="submit" name="delete_confirm_attendance" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this attendance request?');">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No pending requests found.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
                 <!-- View Attendance Section -->
                 <section id="viewAttendanceSection" class="section-container d-none" aria-label="View Attendance Section">
                     <div class="row">
@@ -1188,7 +1303,7 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= (new DateTime($attendance['time']))->format('h:i A') ?></td>
                                                             <td><?= htmlspecialchars($attendance['eventname']) ?></td>
                                                             <td>
-                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-primary" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
+                                                                <a href="?edit_att_id=<?= $attendance['id'] ?>#recordAttendanceSection" class="btn btn-sm btn-primary me-1" aria-label="Edit Attendance for <?= htmlspecialchars($attendance['name']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this attendance record?');" aria-label="Delete Attendance for <?= htmlspecialchars($attendance['name']) ?>">
@@ -1306,7 +1421,7 @@ if (isset($_GET['edit_item_id'])) {
                                                             <td><?= (new DateTime($payment['pay_enddate']))->format('M d, Y') ?></td>
                                                             <td><?= htmlspecialchars($payment['pay_description']) ?></td>
                                                             <td>
-                                                                <a href="?edit_pay_id=<?= $payment['pay_id'] ?>#createPaymentSection" class="btn btn-sm btn-primary" aria-label="Edit Payment for <?= htmlspecialchars($payment['payname']) ?>">
+                                                                <a href="?edit_pay_id=<?= $payment['pay_id'] ?>#createPaymentSection" class="btn btn-sm btn-primary me-1" aria-label="Edit Payment for <?= htmlspecialchars($payment['payname']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this payment record?');" aria-label="Delete Payment for <?= htmlspecialchars($payment['payname']) ?>">
@@ -1451,7 +1566,7 @@ if (isset($_GET['edit_item_id'])) {
                                                                 </span>
                                                             </td>
                                                             <td>
-                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-primary" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
+                                                                <a href="?edit_item_id=<?= $item['lst_id'] ?>#addItemSection" class="btn btn-sm btn-primary me-1" aria-label="Edit Item <?= htmlspecialchars($item['lst_name']) ?>">
                                                                     <i class="bi bi-pencil"></i>
                                                                 </a>
                                                                 <form method="post" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this item?');" aria-label="Delete Item <?= htmlspecialchars($item['lst_name']) ?>">

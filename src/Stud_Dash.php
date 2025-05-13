@@ -65,8 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_attendance']))
     $checkEvent = $pdo->prepare('SELECT id FROM events WHERE id = ?');
     $checkEvent->execute([$event_id]);
     if ($checkEvent->rowCount() > 0) {
-        // Create attendance record
-        $stmt = $pdo->prepare('INSERT INTO attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
+        // Create attendance record in confirm_attendance table
+        $stmt = $pdo->prepare('INSERT INTO confirm_attendance (name, date, time, event_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$name, $date, $time, $event_id]);
         $_SESSION['success_message'] = 'Attendance recorded successfully.';
         header('Location: ' . $_SERVER['PHP_SELF'] . '?action=attendance#recordAttendanceForm');
@@ -511,19 +511,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                 <i class="bi bi-list"></i>
             </button>
 
-        <div class="d-flex align-items-center">
-            <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2" />
-            <a class="navbar-brand fw-bold" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
-        </div>
+            <div class="d-flex align-items-center flex-grow-1">
+                <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2 d-none d-sm-block" />
+                <a class="navbar-brand fw-bold text-truncate" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
+            </div>
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="me-2 d-none d-md-inline"><?= htmlspecialchars($userFullname) ?></span>
+                    <span class="me-2 d-none d-md-inline text-truncate" style="max-width: 150px;"><?= htmlspecialchars($userFullname) ?></span>
                     <div class="admin-logo" aria-label="Admin Panel Logo">
                         <img id="adminLogoImg" src="<?= isset($userProfileImage) ? 'data:image/jpeg;base64,' . base64_encode($userProfileImage) : '../img/Profile.png' ?>" alt="Profile Image" height="40" class="rounded-circle" style="object-fit: cover;">
                     </div>
                 </div>
-                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
                     <li><a class="dropdown-item" href="#" data-section="manageAccountSection"><i class="bi bi-gear me-2"></i>Manage Account</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="USG-Login.php"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
