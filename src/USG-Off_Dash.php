@@ -2886,56 +2886,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         }
     }
 
-    // Handle form submissions
-    document.getElementById('createAnnouncementForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const title = document.getElementById('announcementTitle').value.trim();
-        const content = document.getElementById('announcementContent').value.trim();
-        
-        if (!title || !content) {
-            if (!title) showError('announcementTitle', 'Title is required');
-            if (!content) showError('announcementContent', 'Content is required');
-            return;
-        }
-        
-        const formData = new FormData(this);
-        
-        fetch('handle_announcement.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show success message
-                const successAlert = document.createElement('div');
-                successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
-                successAlert.innerHTML = `
-                    ${data.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                document.querySelector('.main-content').insertBefore(successAlert, document.querySelector('.section-container'));
-                
-                // Clear form fields
-                document.getElementById('announcementTitle').value = '';
-                document.getElementById('announcementContent').value = '';
-                
-                // Auto-dismiss alert after 5 seconds
-                setTimeout(() => {
-                    const alert = bootstrap.Alert.getOrCreateInstance(successAlert);
-                    alert.close();
-                }, 5000);
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while processing your request.');
-        });
-    });
-
     document.getElementById('editAnnouncementForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
         
