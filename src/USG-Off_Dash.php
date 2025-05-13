@@ -2794,17 +2794,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         }
     }
 
-    // Add these new functions for announcement management
-    function editAnnouncement(id, title, content) {
-        document.getElementById('editAnnouncementId').value = id;
-        document.getElementById('editAnnouncementTitle').value = title;
-        document.getElementById('editAnnouncementContent').value = content;
-        
-        // Show the modal
-        const modal = new bootstrap.Modal(document.getElementById('editAnnouncementModal'));
-        modal.show();
-    }
-
     function deleteAnnouncement(id) {
         if (confirm('Are you sure you want to delete this announcement?')) {
             const form = document.createElement('form');
@@ -2863,36 +2852,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         });
     });
 </script>
-
-<!-- Edit Announcement Modal -->
-<div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-secondary text-white">
-                <h5 class="modal-title" id="editAnnouncementModalLabel">Edit Announcement</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="editAnnouncementForm" method="post">
-                <div class="modal-body">
-                    <input type="hidden" name="update_announcement" value="1">
-                    <input type="hidden" name="announcement_id" id="editAnnouncementId">
-                    <div class="mb-3">
-                        <label for="editAnnouncementTitle" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="editAnnouncementTitle" name="title">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editAnnouncementContent" class="form-label">Content</label>
-                        <textarea class="form-control" id="editAnnouncementContent" name="content" rows="6"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>
