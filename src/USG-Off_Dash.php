@@ -252,8 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_attendance'])
                 
                 $pdo->commit();
                 $successMessage = 'Attendance approved successfully.';
-                header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
-                exit();
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAttendanceSection');
+        exit();
             }
         } catch (\PDOException $e) {
             $pdo->rollBack();
@@ -746,7 +746,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
             <div class="d-flex align-items-center flex-grow-1">
                 <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2 d-none d-sm-block" />
                 <a class="navbar-brand fw-bold text-truncate" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
-            </div>
+        </div>
 
             <div class="dropdown">
                 <div class="d-flex align-items-center text-white" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">

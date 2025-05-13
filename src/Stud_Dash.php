@@ -555,6 +555,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                             </a>
                         </li>
 
+                        <li class="nav-item fw-bold">
+                            <a class="nav-link" href="#" data-section="announcementSection">
+                            <i class="bi bi-megaphone me-2"></i>
+                                Announcement
+                            </a>
+                        </li>
+
                         <!-- Events Menu -->
                         <li class="nav-item fw-bold">
                             <a class="nav-link" href="#" data-section="viewEventsSection">
@@ -705,6 +712,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                         </div>
                                     </div>
                                     <p class="card-text text-muted small mt-2">Total Lost Items Recorded</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Announcements Card -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="Announcements">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title mb-0">Announcements</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="announcements-list">
+                                        <?php
+                                        // Fetch announcements from database
+                                        try {
+                                            $stmt = $pdo->query('SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5');
+                                            $announcements = $stmt->fetchAll();
+                                            
+                                            if (!empty($announcements)): 
+                                                foreach ($announcements as $announcement): ?>
+                                                    <div class="announcement-item mb-3 pb-3 border-bottom">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <h6 class="mb-1 fw-bold"><?= htmlspecialchars($announcement['title']) ?></h6>
+                                                                <p class="mb-1 text-muted small">
+                                                                    Posted on <?= date('M d, Y', strtotime($announcement['created_at'])) ?>
+                                                                </p>
+                                                                <p class="mb-0"><?= htmlspecialchars($announcement['content']) ?></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach;
+                                            else: ?>
+                                                <div class="text-center text-muted py-4">
+                                                    <i class="bi bi-megaphone display-4"></i>
+                                                    <p class="mt-2">No announcements yet</p>
+                                                </div>
+                                            <?php endif;
+                                        } catch (\PDOException $e) {
+                                            echo '<div class="alert alert-danger">Error loading announcements: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                                        }
+                                        ?>
+                                    </div>
+                                    <?php if (!empty($announcements)): ?>
+                                        <div class="text-center mt-3">
+                                            <a href="#announcementSection" class="btn btn-outline-primary" data-section="announcementSection">
+                                                <i class="bi bi-eye me-2"></i>View All Announcements
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -1046,6 +1105,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                             </button>
                                         </div>
                                     </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Announcement Section -->
+                <section id="announcementSection" class="section-container d-none">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Announcements</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="announcementsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Title</th>
+                                                    <th scope="col">Content</th>
+                                                    <th scope="col">Date Posted</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                try {
+                                                    $stmt = $pdo->query('SELECT * FROM announcements ORDER BY created_at DESC');
+                                                    $announcements = $stmt->fetchAll();
+                                                    
+                                                    if (!empty($announcements)): 
+                                                        foreach ($announcements as $index => $announcement): ?>
+                                                            <tr>
+                                                                <th scope="row"><?= $index + 1 ?></th>
+                                                                <td><?= htmlspecialchars($announcement['title']) ?></td>
+                                                                <td><?= htmlspecialchars($announcement['content']) ?></td>
+                                                                <td><?= date('M d, Y', strtotime($announcement['created_at'])) ?></td>
+                                                            </tr>
+                                                        <?php endforeach;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No announcements found.</td>
+                                                        </tr>
+                                                    <?php endif;
+                                                } catch (\PDOException $e) {
+                                                    echo '<tr><td colspan="5" class="text-center text-danger">Error loading announcements: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
