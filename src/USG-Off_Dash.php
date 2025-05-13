@@ -574,6 +574,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
         exit();
     }
 }
+
+// Handle Delete Announcement
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_announcement'])) {
+    $deleteId = (int) ($_POST['announcement_id'] ?? 0);
+    if ($deleteId > 0) {
+        try {
+            $stmt = $pdo->prepare('DELETE FROM announcements WHERE id = ?');
+            $stmt->execute([$deleteId]);
+            $successMessage = 'Announcement deleted successfully.';
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAnnouncementsSection');
+            exit();
+        } catch (\PDOException $e) {
+            $errors[] = 'Error deleting announcement: ' . $e->getMessage();
+        }
+    }
+}
+
+// Handle Update Announcement
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement'])) {
+    $updateId = (int) ($_POST['announcement_id'] ?? 0);
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+
+    // Validate input
+    if ($title === '') {
+        $errors[] = 'Title is required.';
+    }
+    if ($content === '') {
+        $errors[] = 'Content is required.';
+    }
+
+    // Update if no errors
+    if (empty($errors) && $updateId > 0) {
+        try {
+            $stmt = $pdo->prepare('UPDATE announcements SET title = ?, content = ? WHERE id = ?');
+            $stmt->execute([$title, $content, $updateId]);
+            $successMessage = 'Announcement updated successfully.';
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAnnouncementsSection');
+            exit();
+        } catch (\PDOException $e) {
+            $errors[] = 'Error updating announcement: ' . $e->getMessage();
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -1140,18 +1184,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
                                         <input type="hidden" name="action" value="create_announcement">
                                         <div class="mb-3">
                                             <label for="announcementTitle" class="form-label fw-bold">Title</label>
-                                            <input type="text" class="form-control" id="announcementTitle" name="title" required>
+                                            <input type="text" class="form-control" id="announcementTitle" name="title">
                                         </div>
                                         <div class="mb-3">
                                             <label for="announcementContent" class="form-label fw-bold">Content</label>
-                                            <textarea class="form-control" id="announcementContent" name="content" rows="6" required></textarea>
+                                            <textarea class="form-control" id="announcementContent" name="content" rows="6"></textarea>
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewAnnouncementsSection')">
                                                 <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-save me-2"></i>Create Announcement
+                                            <i class="bi bi-clipboard-check me-2"></i>Create Announcement
                                             </button>
                                         </div>
                                     </form>
@@ -2749,7 +2793,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
         document.getElementById('editAnnouncementId').value = id;
         document.getElementById('editAnnouncementTitle').value = title;
         document.getElementById('editAnnouncementContent').value = content;
-        new bootstrap.Modal(document.getElementById('editAnnouncementModal')).show();
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('editAnnouncementModal'));
+        modal.show();
     }
 
     function deleteAnnouncement(id) {
@@ -2757,7 +2804,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
             const form = document.createElement('form');
             form.method = 'post';
             form.innerHTML = `
-                <input type="hidden" name="action" value="delete_announcement">
+                <input type="hidden" name="delete_announcement" value="1">
                 <input type="hidden" name="announcement_id" value="${id}">
             `;
             document.body.appendChild(form);
@@ -2790,26 +2837,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
 
     document.getElementById('editAnnouncementForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
+        
         const formData = new FormData(this);
         
-        fetch('handle_announcement.php', {
+        fetch(window.location.href, {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
             } else {
-                alert('Error: ' + data.message);
+                throw new Error('Network response was not ok');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while processing your request.');
+            alert('An error occurred while updating the announcement.');
         });
     });
 </script>
+
+<!-- Edit Announcement Modal -->
+<div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="editAnnouncementModalLabel">Edit Announcement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editAnnouncementForm" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="update_announcement" value="1">
+                    <input type="hidden" name="announcement_id" id="editAnnouncementId">
+                    <div class="mb-3">
+                        <label for="editAnnouncementTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="editAnnouncementTitle" name="title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAnnouncementContent" class="form-label">Content</label>
+                        <textarea class="form-control" id="editAnnouncementContent" name="content" rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
