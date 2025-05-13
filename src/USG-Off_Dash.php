@@ -649,6 +649,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         }
     }
 }
+
+// Add this near the other form handling code at the top of the file
+// Handle Create Announcement
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement'])) {
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+
+    // Validate input
+    if ($title === '') {
+        $errors[] = 'Title is required.';
+    }
+    if ($content === '') {
+        $errors[] = 'Content is required.';
+    }
+
+    // Create if no errors
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare('INSERT INTO announcements (title, content) VALUES (?, ?)');
+            $stmt->execute([$title, $content]);
+            $successMessage = 'Announcement created successfully.';
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAnnouncementsSection');
+            exit();
+        } catch (\PDOException $e) {
+            $errors[] = 'Error creating announcement: ' . $e->getMessage();
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -1213,27 +1241,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <form id="createAnnouncementForm" method="post" action="handle_announcement.php">
-                                        <input type="hidden" name="action" value="<?= $editAnnouncement ? 'update_announcement' : 'create_announcement' ?>">
-                                        <?php if ($editAnnouncement): ?>
-                                            <input type="hidden" name="announcement_id" value="<?= $editAnnouncement['id'] ?>">
-                                        <?php endif; ?>
+                                    <form id="createAnnouncementForm" method="POST" class="needs-validation" novalidate>
                                         <div class="mb-3">
-                                            <label for="announcementTitle" class="form-label fw-bold">Title</label>
-                                            <input type="text" class="form-control" id="announcementTitle" name="title" value="<?= htmlspecialchars($_POST['title'] ?? $editAnnouncement['title'] ?? '') ?>">
+                                            <label for="announcementTitle" class="form-label">Title</label>
+                                            <input type="text" class="form-control" id="announcementTitle" name="title" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="announcementContent" class="form-label fw-bold">Content</label>
-                                            <textarea class="form-control" id="announcementContent" name="content" rows="6"><?= htmlspecialchars($_POST['content'] ?? $editAnnouncement['content'] ?? '') ?></textarea>
+                                            <label for="announcementContent" class="form-label">Content</label>
+                                            <textarea class="form-control" id="announcementContent" name="content" rows="4" required></textarea>
                                         </div>
-                                        <div class="text-end">
-                                            <button type="button" class="btn btn-danger me-2" onclick="showSection('viewAnnouncementsSection')">
-                                                <i class="bi bi-x-circle me-2"></i>Cancel
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-clipboard-check me-2"></i><?= $editAnnouncement ? 'Update Announcement' : 'Create Announcement' ?>
-                                            </button>
-                                        </div>
+                                        <button type="submit" name="create_announcement" class="btn btn-primary">Create Announcement</button>
                                     </form>
                                 </div>
                             </div>
@@ -2803,25 +2820,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                     return;
                 }
                 
-                // If validation passes, submit via fetch
-                const formData = new FormData(this);
-                fetch('handle_announcement.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirect back to the dashboard with success message
-                        window.location.href = 'USG-Off_Dash.php?msg=' + encodeURIComponent(data.message) + '#viewAnnouncementsSection';
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
+                // If validation passes, submit the form
+                this.submit();
             });
 
             // Add input event listeners for real-time validation
