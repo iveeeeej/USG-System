@@ -66,14 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             $stmt->execute([$deleteId]);
             
             // Now delete the event
-            $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
-            $stmt->execute([$deleteId]);
+        $stmt = $pdo->prepare('DELETE FROM events WHERE id = ?');
+        $stmt->execute([$deleteId]);
             
             // Commit transaction
             $pdo->commit();
             
-            header('Location: ' . $_SERVER['PHP_SELF'] . '#viewEventsSection');
-            exit();
+        header('Location: ' . $_SERVER['PHP_SELF'] . '#viewEventsSection');
+        exit();
         } catch (\PDOException $e) {
             // Rollback transaction on error
             $pdo->rollBack();
@@ -124,6 +124,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_feedback'])
     $stmt->execute();
     $successMessage = 'All feedback records have been cleared successfully.';
     header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#feedbackSection');
+    exit();
+}
+
+// Handle Clear All Announcements
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_announcements'])) {
+    $stmt = $pdo->prepare('DELETE FROM announcements');
+    $stmt->execute();
+    $successMessage = 'All announcements have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#viewAnnouncementsSection');
     exit();
 }
 
@@ -1337,6 +1346,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
                                             </tbody>
                                         </table>
                                     </div>
+                                    <?php if (!empty($announcements)): ?>
+                                        <div class="text-end mt-3">
+                                            <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all announcements? This action cannot be undone.');">
+                                                <button type="submit" name="clear_all_announcements" class="btn btn-danger">
+                                                    <i class="bi bi-trash me-2"></i>Clear Records
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -1953,6 +1971,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
                                                 ?>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all feedback records? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_feedback" class="btn btn-danger">
+                                                <i class="bi bi-trash me-2"></i>Clear Records
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
