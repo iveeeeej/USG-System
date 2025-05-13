@@ -787,6 +787,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
                             </a>
                         </li>
 
+                        <li class="nav-item fw-bold">
+                            <a class="nav-link" href="#" data-section="announcementSection">
+                            <i class="bi bi-megaphone me-2"></i>
+                                Announcement
+                            </a>
+                        </li>
+
                         <!-- Events Menu -->
                         <li class="nav-item fw-bold">
                             <a class="nav-link" data-bs-toggle="collapse" href="#eventsSubMenu" role="button" aria-expanded="true" aria-controls="eventsSubMenu">
@@ -1032,6 +1039,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
                                     <a href="#generateReportSection" class="btn btn-primary mt-3 mt-md-0" data-section="generateReportSection">
                                         <i class="bi bi-file-earmark-bar-graph me-2"></i>View Report
                                     </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Announcements Card -->
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card" aria-label="Announcements">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Announcements</h5>
+                                    <button class="btn btn-primary btn-sm" data-section="announcementSection">
+                                        <i class="bi bi-plus-circle me-2"></i>New Announcement
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="announcements-list">
+                                        <?php
+                                        // Fetch announcements from database
+                                        try {
+                                            $stmt = $pdo->query('SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5');
+                                            $announcements = $stmt->fetchAll();
+                                            
+                                            if (!empty($announcements)): 
+                                                foreach ($announcements as $announcement): ?>
+                                                    <div class="announcement-item mb-3 pb-3 border-bottom">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <div>
+                                                                <h6 class="mb-1 fw-bold"><?= htmlspecialchars($announcement['title']) ?></h6>
+                                                                <p class="mb-1 text-muted small">
+                                                                    Posted on <?= date('M d, Y', strtotime($announcement['created_at'])) ?>
+                                                                </p>
+                                                                <p class="mb-0"><?= htmlspecialchars($announcement['content']) ?></p>
+                                                            </div>
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <li>
+                                                                        <a class="dropdown-item" href="#" onclick="editAnnouncement(<?= $announcement['id'] ?>)">
+                                                                            <i class="bi bi-pencil me-2"></i>Edit
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item text-danger" href="#" onclick="deleteAnnouncement(<?= $announcement['id'] ?>)">
+                                                                            <i class="bi bi-trash me-2"></i>Delete
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach;
+                                            else: ?>
+                                                <div class="text-center text-muted py-4">
+                                                    <i class="bi bi-megaphone display-4"></i>
+                                                    <p class="mt-2">No announcements yet</p>
+                                                </div>
+                                            <?php endif;
+                                        } catch (\PDOException $e) {
+                                            echo '<div class="alert alert-danger">Error loading announcements: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                                        }
+                                        ?>
+                                    </div>
+                                    <?php if (!empty($announcements)): ?>
+                                        <div class="text-center mt-3">
+                                            <a href="#announcementSection" class="btn btn-outline-primary" data-section="announcementSection">
+                                                <i class="bi bi-eye me-2"></i>View All Announcements
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -1940,8 +2019,130 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
                     </div>
                 </section>
 
-            </main>
+                <!-- Announcement Section -->
+                <section id="announcementSection" class="section-container d-none">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mt-4 mb-4">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Announcements</h5>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
+                                        <i class="bi bi-plus-circle me-2"></i>New Announcement
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="announcementsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Title</th>
+                                                    <th scope="col">Content</th>
+                                                    <th scope="col">Date Posted</th>
+                                                    <th scope="col" style="min-width: 110px">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                try {
+                                                    $stmt = $pdo->query('SELECT * FROM announcements ORDER BY created_at DESC');
+                                                    $announcements = $stmt->fetchAll();
+                                                    
+                                                    if (!empty($announcements)): 
+                                                        foreach ($announcements as $index => $announcement): ?>
+                                                            <tr>
+                                                                <th scope="row"><?= $index + 1 ?></th>
+                                                                <td><?= htmlspecialchars($announcement['title']) ?></td>
+                                                                <td><?= htmlspecialchars($announcement['content']) ?></td>
+                                                                <td><?= date('M d, Y', strtotime($announcement['created_at'])) ?></td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-primary me-1" onclick="editAnnouncement(<?= $announcement['id'] ?>, '<?= htmlspecialchars(addslashes($announcement['title'])) ?>', '<?= htmlspecialchars(addslashes($announcement['content'])) ?>')">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(<?= $announcement['id'] ?>)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No announcements found.</td>
+                                                        </tr>
+                                                    <?php endif;
+                                                } catch (\PDOException $e) {
+                                                    echo '<tr><td colspan="5" class="text-center text-danger">Error loading announcements: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
+                <!-- Create Announcement Modal -->
+                <div class="modal fade" id="createAnnouncementModal" tabindex="-1" aria-labelledby="createAnnouncementModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-secondary text-white">
+                                <h5 class="modal-title" id="createAnnouncementModalLabel">New Announcement</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form id="createAnnouncementForm" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="action" value="create_announcement">
+                                    <div class="mb-3">
+                                        <label for="announcementTitle" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="announcementTitle" name="title" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="announcementContent" class="form-label">Content</label>
+                                        <textarea class="form-control" id="announcementContent" name="content" rows="4" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Create Announcement</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Announcement Modal -->
+                <div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-secondary text-white">
+                                <h5 class="modal-title" id="editAnnouncementModalLabel">Edit Announcement</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form id="editAnnouncementForm" method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="action" value="edit_announcement">
+                                    <input type="hidden" name="announcement_id" id="editAnnouncementId">
+                                    <div class="mb-3">
+                                        <label for="editAnnouncementTitle" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="editAnnouncementTitle" name="title" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editAnnouncementContent" class="form-label">Content</label>
+                                        <textarea class="form-control" id="editAnnouncementContent" name="content" rows="4" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Update Announcement</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
@@ -2570,8 +2771,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_confirm_attend
             customDatesDiv.classList.add('d-none');
         }
     }
+
+    // Add these new functions for announcement management
+    function editAnnouncement(id, title, content) {
+        document.getElementById('editAnnouncementId').value = id;
+        document.getElementById('editAnnouncementTitle').value = title;
+        document.getElementById('editAnnouncementContent').value = content;
+        new bootstrap.Modal(document.getElementById('editAnnouncementModal')).show();
+    }
+
+    function deleteAnnouncement(id) {
+        if (confirm('Are you sure you want to delete this announcement?')) {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_announcement">
+                <input type="hidden" name="announcement_id" value="${id}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Handle form submissions
+    document.getElementById('createAnnouncementForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('handle_announcement.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request.');
+        });
+    });
+
+    document.getElementById('editAnnouncementForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('handle_announcement.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request.');
+        });
+    });
 </script>
 
 </body>
-</html>
 </html>

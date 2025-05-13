@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2025 at 06:15 AM
+-- Generation Time: May 13, 2025 at 09:31 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,18 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `announcements`
+--
+
+CREATE TABLE `announcements` (
+  `id` int(11) NOT NULL,
+  `title` varchar(50) DEFAULT NULL,
+  `created_at` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `attendance`
 --
 
@@ -40,7 +52,8 @@ CREATE TABLE `attendance` (
 --
 
 INSERT INTO `attendance` (`id`, `name`, `date`, `time`, `event_id`) VALUES
-(78, 'Mark Dave', '2025-05-13', '03:09:00', 41);
+(82, 'Mark Dave', '2025-05-13', '04:10:00', 41),
+(83, 'Mark Davey', '2025-05-13', '14:13:00', 41);
 
 -- --------------------------------------------------------
 
@@ -91,6 +104,13 @@ CREATE TABLE `feedbk` (
   `feed_comm` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `feedbk`
+--
+
+INSERT INTO `feedbk` (`feed_id`, `feed_type`, `feed_sub`, `feed_comm`) VALUES
+(15, 'suggestion', 'Good Work', 'zfzfzfzf');
+
 -- --------------------------------------------------------
 
 --
@@ -123,6 +143,13 @@ CREATE TABLE `pay` (
   `pay_description` text DEFAULT NULL,
   `amount` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pay`
+--
+
+INSERT INTO `pay` (`pay_id`, `payname`, `pay_startdate`, `pay_enddate`, `pay_description`, `amount`) VALUES
+(19, 'money', '2025-05-13', '2025-05-13', '', 100.00);
 
 -- --------------------------------------------------------
 
@@ -1581,6 +1608,12 @@ INSERT INTO `user_profile` (`user_id`, `email`, `phone`, `profile_picture`, `cre
 --
 
 --
+-- Indexes for table `announcements`
+--
+ALTER TABLE `announcements`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `attendance`
 --
 ALTER TABLE `attendance`
@@ -1636,16 +1669,22 @@ ALTER TABLE `user_profile`
 --
 
 --
+-- AUTO_INCREMENT for table `announcements`
+--
+ALTER TABLE `announcements`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT for table `confirm_attendance`
 --
 ALTER TABLE `confirm_attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -1657,7 +1696,7 @@ ALTER TABLE `events`
 -- AUTO_INCREMENT for table `feedbk`
 --
 ALTER TABLE `feedbk`
-  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `lst_fnd`
@@ -1669,7 +1708,7 @@ ALTER TABLE `lst_fnd`
 -- AUTO_INCREMENT for table `pay`
 --
 ALTER TABLE `pay`
-  MODIFY `pay_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `pay_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables
