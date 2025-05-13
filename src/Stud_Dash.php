@@ -759,7 +759,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
                                     </div>
                                     <?php if (!empty($announcements)): ?>
                                         <div class="text-center mt-3">
-                                            <a href="#announcementSection" class="btn btn-outline-primary" data-section="announcementSection">
+                                            <a href="#announcementSection" class="btn btn-primary" data-section="announcementSection">
                                                 <i class="bi bi-eye me-2"></i>View All Announcements
                                             </a>
                                         </div>

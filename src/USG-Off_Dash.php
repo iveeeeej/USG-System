@@ -538,6 +538,15 @@ if (isset($_GET['edit_id'])) {
     $editEvent = $stmt->fetch();
 }
 
+// Check edit announcement request
+$editAnnouncement = null;
+if (isset($_GET['edit_announcement_id'])) {
+    $editAnnouncementId = (int) $_GET['edit_announcement_id'];
+    $stmt = $pdo->prepare('SELECT * FROM announcements WHERE id = ?');
+    $stmt->execute([$editAnnouncementId]);
+    $editAnnouncement = $stmt->fetch();
+}
+
 $editAttendance = null;
 if (isset($_GET['edit_att_id'])) {
     $editAttId = (int) $_GET['edit_att_id'];
@@ -1148,7 +1157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                                     </div>
                                     <?php if (!empty($announcements)): ?>
                                         <div class="text-center mt-3">
-                                            <a href="#announcementSection" class="btn btn-outline-primary" data-section="viewAnnouncementsSection">
+                                            <a href="#announcementSection" class="btn btn-primary" data-section="viewAnnouncementsSection">
                                                 <i class="bi bi-eye me-2"></i>View All Announcements
                                             </a>
                                         </div>
@@ -1177,25 +1186,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                         <div class="col-12">
                             <div class="card mt-4 mb-4">
                                 <div class="card-header bg-secondary text-white">
-                                    <h5 class="card-title mb-0">Create Announcement</h5>
+                                    <h5 class="card-title mb-0">
+                                        <?= $editAnnouncement ? 'Edit Announcement' : 'Create Announcement' ?>
+                                    </h5>
                                 </div>
                                 <div class="card-body">
                                     <form id="createAnnouncementForm" method="post" action="handle_announcement.php">
-                                        <input type="hidden" name="action" value="create_announcement">
+                                        <input type="hidden" name="action" value="<?= $editAnnouncement ? 'update_announcement' : 'create_announcement' ?>">
+                                        <?php if ($editAnnouncement): ?>
+                                            <input type="hidden" name="announcement_id" value="<?= $editAnnouncement['id'] ?>">
+                                        <?php endif; ?>
                                         <div class="mb-3">
                                             <label for="announcementTitle" class="form-label fw-bold">Title</label>
-                                            <input type="text" class="form-control" id="announcementTitle" name="title">
+                                            <input type="text" class="form-control" id="announcementTitle" name="title" value="<?= htmlspecialchars($_POST['title'] ?? $editAnnouncement['title'] ?? '') ?>">
                                         </div>
                                         <div class="mb-3">
                                             <label for="announcementContent" class="form-label fw-bold">Content</label>
-                                            <textarea class="form-control" id="announcementContent" name="content" rows="6"></textarea>
+                                            <textarea class="form-control" id="announcementContent" name="content" rows="6"><?= htmlspecialchars($_POST['content'] ?? $editAnnouncement['content'] ?? '') ?></textarea>
                                         </div>
                                         <div class="text-end">
                                             <button type="button" class="btn btn-danger me-2" onclick="showSection('viewAnnouncementsSection')">
                                                 <i class="bi bi-x-circle me-2"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
-                                            <i class="bi bi-clipboard-check me-2"></i>Create Announcement
+                                                <i class="bi bi-clipboard-check me-2"></i><?= $editAnnouncement ? 'Update Announcement' : 'Create Announcement' ?>
                                             </button>
                                         </div>
                                     </form>
@@ -1239,10 +1253,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                                                                 <td><?= htmlspecialchars($announcement['content']) ?></td>
                                                                 <td><?= date('M d, Y', strtotime($announcement['created_at'])) ?></td>
                                                                 <td>
-                                                                    <button type="button" class="btn btn-sm btn-primary me-1" 
-                                                                            onclick="editAnnouncement(<?= $announcement['id'] ?>, '<?= htmlspecialchars(addslashes($announcement['title'])) ?>', '<?= htmlspecialchars(addslashes($announcement['content'])) ?>')">
+                                                                    <a href="?edit_announcement_id=<?= $announcement['id'] ?>#createAnnouncementSection" class="btn btn-sm btn-primary me-1" aria-label="Edit Announcement <?= htmlspecialchars($announcement['title']) ?>">
                                                                         <i class="bi bi-pencil"></i>
-                                                                    </button>
+                                                                    </a>
                                                                     <button type="button" class="btn btn-sm btn-danger" 
                                                                             onclick="deleteAnnouncement(<?= $announcement['id'] ?>)">
                                                                         <i class="bi bi-trash"></i>
@@ -1878,13 +1891,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
                                                 ?>
                                             </tbody>
                                         </table>
-                                    </div>
-                                    <div class="text-end mt-3">
-                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all feedback records? This action cannot be undone.');">
-                                            <button type="submit" name="clear_all_feedback" class="btn btn-danger">
-                                            <i class="bi bi-trash me-2"></i>Clear Records
-                                            </button>
-                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -2824,7 +2830,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                window.location.href = '?msg=' + encodeURIComponent(data.message) + '#viewAnnouncementsSection';
             } else {
                 alert('Error: ' + data.message);
             }
