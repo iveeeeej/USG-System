@@ -513,7 +513,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
 
             <div class="d-flex align-items-center flex-grow-1">
                 <img src="../img/USG-Logo2.png" alt="Company Logo" height="40" class="me-2 d-none d-sm-block" />
-                <a class="navbar-brand fw-bold text-truncate" href="#">UNIVERSITY OF STUDENT GOVERNMENT</a>
+                <a class="navbar-brand fw-bold text-truncate" href="#">
+                    <span class="d-sm-none">USG</span>
+                    <span class="d-none d-sm-inline">UNIVERSITY OF STUDENT GOVERNMENT</span>
+                </a>
             </div>
 
             <div class="dropdown">
