@@ -697,6 +697,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
         }
     }
 }
+
+// Handle Clear All Approval Records
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_all_approvals'])) {
+    $stmt = $pdo->prepare('DELETE FROM confirm_attendance');
+    $stmt->execute();
+    $successMessage = 'All approval records have been cleared successfully.';
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?msg=' . urlencode($successMessage) . '#confirmAttendanceSection');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -977,7 +986,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
                                     </li>
                                     <li class="nav-item fw-bold">
                                         <a class="nav-link" href="#" data-section="confirmAttendanceSection" id="navConfirmAttendance">
-                                            <i class="bi bi-eye me-2"></i>
+                                            <i class="bi bi-bookmark-check me-2"></i>
                                             Approval Requests
                                         </a>
                                     </li>
@@ -1576,6 +1585,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_announcement']
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div class="text-end mt-3">
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all approval records? This action cannot be undone.');">
+                                            <button type="submit" name="clear_all_approvals" class="btn btn-danger">
+                                                <i class="bi bi-trash me-2"></i>Clear Records
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
