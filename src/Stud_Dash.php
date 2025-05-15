@@ -536,13 +536,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
     </header>
 
     <!-- Main Container -->
-
+    <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content expanded" role="main">
     <div class="container-fluid">
         <div class="row">
 
             <!-- Sidebar -->
 
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" aria-label="Sidebar navigation" style="background: linear-gradient(135deg, #211948 0%, #232526 100%);">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapsed" aria-label="Sidebar navigation" style="background: linear-gradient(135deg, #211948 0%, #232526 100%);">
                 <button id="sidebarExpandBtn" class="sidebar-expand-btn" aria-label="Expand Sidebar">
                     <i class="bi bi-chevron-right"></i>
                 </button>
@@ -609,7 +609,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
             </nav>
 
             <!-- Main Content -->
-            <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" role="main">
+            <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content expanded" role="main">
 
                 <!-- Alert Messages -->
                 <?php if ($successMessage && isset($_GET['action'])): ?>
@@ -1277,6 +1277,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_event'])) {
         const sidebarExpandBtn = document.getElementById('sidebarExpandBtn');
 
         if (sidebarToggle && sidebar && mainContent) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 mainContent.classList.toggle('expanded');
